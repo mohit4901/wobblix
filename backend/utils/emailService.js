@@ -3,14 +3,17 @@ import nodemailer from 'nodemailer';
 const sendOrderConfirmationEmail = async (order, userEmail) => {
     try {
         const transporter = nodemailer.createTransport({
+            pool: true, // Keep connection open for faster delivery
             host: 'smtp.gmail.com',
             port: 465,
-            secure: true, // true for 465, false for other ports
+            secure: true,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
-            family: 4 // Force IPv4 to avoid ENETUNREACH errors on cloud providers like Render
+            family: 4,
+            maxConnections: 3,
+            maxMessages: 100
         });
 
         const itemsList = order.items.map(item => `
@@ -56,14 +59,17 @@ const sendVerificationOtpEmail = async (userEmail, otp) => {
     try {
         console.log('Attempting to send OTP email to:', userEmail);
         const transporter = nodemailer.createTransport({
+            pool: true,
             host: 'smtp.gmail.com',
             port: 465,
-            secure: true, // true for 465, false for other ports
+            secure: true,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
-            family: 4 // Force IPv4 to avoid ENETUNREACH errors on cloud providers like Render
+            family: 4,
+            maxConnections: 3,
+            maxMessages: 100
         });
 
         const mailOptions = {
