@@ -1,23 +1,9 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendOrderConfirmationEmail = async (order, userEmail) => {
     try {
-        const transporter = nodemailer.createTransport({
-            pool: true,
-            host: 'smtp.gmail.com',
-            port: 2525, // Alternative port for restricted networks
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-            family: 4,
-            connectionTimeout: 15000,
-            greetingTimeout: 15000,
-            debug: true, // Enable debug logging
-            logger: true  // Log to console
-        });
-
         const itemsList = order.items.map(item => `
             <div style="padding: 10px; border-bottom: 1px solid #eee;">
                 <p style="margin: 0; font-weight: bold;">${item.name} x ${item.quantity}</p>
@@ -25,8 +11,8 @@ const sendOrderConfirmationEmail = async (order, userEmail) => {
             </div>
         `).join('');
 
-        const mailOptions = {
-            from: `"Wobblix Clothing" <${process.env.EMAIL_USER}>`,
+        const { data, error } = await resend.emails.send({
+            from: 'Wobblix <onboarding@resend.dev>',
             to: userEmail,
             subject: 'Order Confirmed! Your Wobblix Drip is on the way 🚀',
             html: `
@@ -48,10 +34,13 @@ const sendOrderConfirmationEmail = async (order, userEmail) => {
                     </div>
                 </div>
             `,
-        };
+        });
 
-        await transporter.sendMail(mailOptions);
-        console.log('Order confirmation email sent to:', userEmail);
+        if (error) {
+            return console.error('Error sending order email:', error);
+        }
+
+        console.log('Order confirmation email sent successfully:', data.id);
     } catch (error) {
         console.error('Error sending email:', error);
     }
@@ -59,25 +48,10 @@ const sendOrderConfirmationEmail = async (order, userEmail) => {
 
 const sendVerificationOtpEmail = async (userEmail, otp) => {
     try {
-        console.log('Attempting to send OTP email to:', userEmail);
-        const transporter = nodemailer.createTransport({
-            pool: true,
-            host: 'smtp.gmail.com',
-            port: 2525,
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-            },
-            family: 4,
-            connectionTimeout: 15000,
-            greetingTimeout: 15000,
-            debug: true,
-            logger: true
-        });
-
-        const mailOptions = {
-            from: `"Wobblix Clothing" <${process.env.EMAIL_USER}>`,
+        console.log('Attempting to send OTP email via Resend to:', userEmail);
+        
+        const { data, error } = await resend.emails.send({
+            from: 'Wobblix <onboarding@resend.dev>',
             to: userEmail,
             subject: 'Verify your Wobblix account',
             html: `
@@ -102,15 +76,16 @@ const sendVerificationOtpEmail = async (userEmail, otp) => {
                     </div>
                 </div>
             `,
-        };
+        });
 
+        if (error) {
+            return console.error('Error sending OTP email:', error);
+        }
 
-        await transporter.sendMail(mailOptions);
-        console.log('OTP email sent successfully to:', userEmail);
+        console.log('OTP email sent successfully via Resend:', data.id);
     } catch (error) {
         console.error('Error sending OTP:', error);
     }
 };
 
 export { sendOrderConfirmationEmail, sendVerificationOtpEmail };
-
