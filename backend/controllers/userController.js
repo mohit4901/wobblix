@@ -73,7 +73,7 @@ const registerUser = async (req, res) => {
         );
         
         // 5. Send OTP Email
-        sendVerificationOtpEmail(email, otp);
+        await sendVerificationOtpEmail(email, otp);
 
         res.json({ success: true, message: "Verification OTP sent to your email", email })
 
@@ -174,7 +174,7 @@ const resendOtp = async (req, res) => {
         verificationData.otp = otp;
         await verificationData.save();
 
-        sendVerificationOtpEmail(email, otp);
+        await sendVerificationOtpEmail(email, otp);
         res.json({ success: true, message: "New OTP sent to your email" });
 
     } catch (error) {
