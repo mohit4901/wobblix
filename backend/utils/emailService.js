@@ -3,7 +3,9 @@ import nodemailer from 'nodemailer';
 const sendOrderConfirmationEmail = async (order, userEmail) => {
     try {
         const transporter = nodemailer.createTransport({
-            service: 'gmail', // or your SMTP service
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false, // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -52,7 +54,9 @@ const sendOrderConfirmationEmail = async (order, userEmail) => {
 const sendVerificationOtpEmail = async (userEmail, otp) => {
     try {
         const transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,

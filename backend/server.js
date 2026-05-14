@@ -17,6 +17,7 @@ import orderRouter from './routes/orderRoute.js'
 
 // ---------------- APP CONFIG ----------------
 const app = express()
+app.set('trust proxy', 1) 
 const port = process.env.PORT || 4000
 
 // ---------------- DB & CLOUD ----------------
