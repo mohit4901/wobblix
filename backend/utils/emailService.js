@@ -4,8 +4,8 @@ const sendOrderConfirmationEmail = async (order, userEmail) => {
     try {
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
-            port: 587,
-            secure: false, // true for 465, false for other ports
+            port: 465,
+            secure: true, // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
@@ -53,10 +53,11 @@ const sendOrderConfirmationEmail = async (order, userEmail) => {
 
 const sendVerificationOtpEmail = async (userEmail, otp) => {
     try {
+        console.log('Attempting to send OTP email to:', userEmail);
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
-            port: 587,
-            secure: false,
+            port: 465,
+            secure: true, // true for 465, false for other ports
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
