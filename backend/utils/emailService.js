@@ -3,17 +3,19 @@ import nodemailer from 'nodemailer';
 const sendOrderConfirmationEmail = async (order, userEmail) => {
     try {
         const transporter = nodemailer.createTransport({
-            pool: true, // Keep connection open for faster delivery
+            pool: true,
             host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
+            port: 2525, // Alternative port for restricted networks
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
             family: 4,
-            maxConnections: 3,
-            maxMessages: 100
+            connectionTimeout: 15000,
+            greetingTimeout: 15000,
+            debug: true, // Enable debug logging
+            logger: true  // Log to console
         });
 
         const itemsList = order.items.map(item => `
@@ -61,15 +63,17 @@ const sendVerificationOtpEmail = async (userEmail, otp) => {
         const transporter = nodemailer.createTransport({
             pool: true,
             host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
+            port: 2525,
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS,
             },
             family: 4,
-            maxConnections: 3,
-            maxMessages: 100
+            connectionTimeout: 15000,
+            greetingTimeout: 15000,
+            debug: true,
+            logger: true
         });
 
         const mailOptions = {
