@@ -2,6 +2,7 @@ import validator from "validator";
 import bcrypt from "bcrypt"
 import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js";
+import verificationModel from "../models/verificationModel.js";
 import { sendVerificationOtpEmail } from "../utils/emailService.js";
 
 
@@ -25,23 +26,9 @@ const loginUser = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (isMatch) {
-            // Check if user is verified
-            if (!user.isVerified) {
-                // Send new OTP if not verified
-                const otp = Math.floor(100000 + Math.random() * 900000).toString();
-                user.verifyOtp = otp;
-                user.verifyOtpExpire = Date.now() + 15 * 60 * 1000;
-                await user.save();
-                sendVerificationOtpEmail(user.email, otp);
-
-                return res.json({ success: false, message: "Account not verified. OTP sent to your email.", needsVerification: true, email: user.email });
-            }
-
             const token = createToken(user._id)
             res.json({ success: true, token })
-
         }
-
         else {
             res.json({ success: false, message: 'Invalid credentials' })
         }
@@ -58,31 +45,13 @@ const registerUser = async (req, res) => {
 
         const { name, email, password } = req.body;
 
-        // checking user already exists or not
+        // 1. Check if user is already verified and exists in main DB
         const exists = await userModel.findOne({ email });
-        
         if (exists) {
-            if (exists.isVerified) {
-                return res.json({ success: false, message: "User already exists" })
-            } else {
-                // If user exists but is not verified, update their info and send new OTP
-                const salt = await bcrypt.genSalt(10)
-                const hashedPassword = await bcrypt.hash(password, salt)
-                const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-                exists.name = name;
-                exists.password = hashedPassword;
-                exists.verifyOtp = otp;
-                exists.verifyOtpExpire = Date.now() + 15 * 60 * 1000;
-                
-                await exists.save();
-                sendVerificationOtpEmail(email, otp);
-
-                return res.json({ success: true, message: "Verification OTP sent to your email", email: exists.email })
-            }
+            return res.json({ success: false, message: "User already exists. Please login." })
         }
 
-        // validating email format & strong password
+        // 2. Validate input
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Please enter a valid email" })
         }
@@ -90,31 +59,23 @@ const registerUser = async (req, res) => {
             return res.json({ success: false, message: "Please enter a strong password" })
         }
 
-        // hashing user password
+        // 3. Hash password and generate OTP
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
-
-        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-
-        const newUser = new userModel({
-            name,
-            email,
-            password: hashedPassword,
-            verifyOtp: otp,
-            verifyOtpExpire: Date.now() + 15 * 60 * 1000
-        })
-
-        const user = await newUser.save()
+        // 4. Save/Update in temporary verification collection
+        // This keeps the main user collection clean until verification is complete
+        await verificationModel.findOneAndUpdate(
+            { email },
+            { name, email, password: hashedPassword, otp },
+            { upsert: true, new: true }
+        );
         
-        // Send OTP Email
+        // 5. Send OTP Email
         sendVerificationOtpEmail(email, otp);
 
-
-        res.json({ success: true, message: "Verification OTP sent to your email", email: user.email })
-
-
+        res.json({ success: true, message: "Verification OTP sent to your email", email })
 
     } catch (error) {
         console.log(error);
@@ -160,24 +121,28 @@ const verifyEmail = async (req, res) => {
     try {
         const { email, otp } = req.body;
 
-        const user = await userModel.findOne({ email });
+        const verificationData = await verificationModel.findOne({ email });
 
-        if (!user) {
-            return res.json({ success: false, message: "User not found" });
+        if (!verificationData) {
+            return res.json({ success: false, message: "Verification record not found or expired. Please register again." });
         }
 
-        if (user.verifyOtp === "" || user.verifyOtp !== otp) {
+        if (verificationData.otp !== otp) {
             return res.json({ success: false, message: "Invalid OTP" });
         }
 
-        if (user.verifyOtpExpire < Date.now()) {
-            return res.json({ success: false, message: "OTP Expired" });
-        }
+        // OTP is valid - Create the real user
+        const newUser = new userModel({
+            name: verificationData.name,
+            email: verificationData.email,
+            password: verificationData.password,
+            isVerified: true
+        });
 
-        user.isVerified = true;
-        user.verifyOtp = '';
-        user.verifyOtpExpire = 0;
-        await user.save();
+        const user = await newUser.save();
+
+        // Delete the temporary verification record
+        await verificationModel.deleteOne({ email });
 
         const token = createToken(user._id);
         res.json({ success: true, message: "Email verified successfully", token });
@@ -192,16 +157,22 @@ const verifyEmail = async (req, res) => {
 const resendOtp = async (req, res) => {
     try {
         const { email } = req.body;
-        const user = await userModel.findOne({ email });
+        
+        // Check if user is already verified
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.json({ success: false, message: "User already verified. Please login." });
+        }
 
-        if (!user) {
-            return res.json({ success: false, message: "User not found" });
+        const verificationData = await verificationModel.findOne({ email });
+
+        if (!verificationData) {
+            return res.json({ success: false, message: "Registration session expired. Please register again." });
         }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        user.verifyOtp = otp;
-        user.verifyOtpExpire = Date.now() + 15 * 60 * 1000;
-        await user.save();
+        verificationData.otp = otp;
+        await verificationData.save();
 
         sendVerificationOtpEmail(email, otp);
         res.json({ success: true, message: "New OTP sent to your email" });
