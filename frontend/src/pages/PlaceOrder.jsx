@@ -10,7 +10,8 @@ const PlaceOrder = () => {
 
     const [method, setMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+    const [couponInput, setCouponInput] = useState("");
+    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, discount, applyCoupon, couponCode } = useContext(ShopContext);
 
 
     const [formData, setFormData] = useState({
@@ -102,10 +103,15 @@ const PlaceOrder = () => {
                 }
             }
 
+            const subtotal = getCartAmount();
+            const discountAmount = (subtotal * discount) / 100;
+            const finalAmount = subtotal - discountAmount + delivery_fee;
+
             let orderData = {
                 address: formData,
                 items: orderItems,
-                amount: getCartAmount() + delivery_fee
+                amount: finalAmount,
+                couponCode: couponCode
             }
 
             if (method === 'razorpay') {
@@ -192,6 +198,32 @@ const PlaceOrder = () => {
                 
                 <div className="bg-black text-white p-10 shadow-2xl">
                     <CartTotal />
+                    
+                    {/* COUPON SECTION */}
+                    <div className='mt-8 pt-8 border-t border-gray-800'>
+                        <p className='text-[10px] font-black uppercase tracking-widest text-gray-400 mb-4'>Promo Code</p>
+                        <div className='flex gap-2'>
+                            <input 
+                                type="text" 
+                                value={couponInput}
+                                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                                placeholder='ENTER CODE'
+                                className='bg-gray-900 border border-gray-800 text-white px-4 py-3 text-xs font-bold tracking-widest outline-none focus:border-white transition-all flex-1'
+                            />
+                            <button 
+                                type='button'
+                                onClick={() => applyCoupon(couponInput)}
+                                className='bg-white text-black px-6 py-3 text-[10px] font-black uppercase tracking-widest hover:bg-gray-200 transition-all'
+                            >
+                                APPLY
+                            </button>
+                        </div>
+                        {couponCode && (
+                            <p className='text-[10px] font-bold text-green-500 mt-3 uppercase tracking-widest'>
+                                Code {couponCode} applied successfully!
+                            </p>
+                        )}
+                    </div>
                 </div>
 
                 <div className='bg-white p-10 shadow-sm'>

@@ -23,6 +23,8 @@ const ShopContextProvider = (props) => {
   const [token, setToken] = useState("");
   const [userData, setUserData] = useState(false);
   const [shippingRegion, setShippingRegion] = useState("india");
+  const [couponCode, setCouponCode] = useState("");
+  const [discount, setDiscount] = useState(0);
 
   const [category, setCategory] = useState("");
   const [subCategory, setSubCategory] = useState("");
@@ -233,6 +235,29 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  // APPLY COUPON
+  const applyCoupon = async (code) => {
+    if (!token) {
+        toast.error("Please login to apply coupon");
+        return;
+    }
+    try {
+        const response = await axios.post(backendUrl + "/api/order/verify-coupon", { couponCode: code }, { headers: { token } });
+        if (response.data.success) {
+            setDiscount(response.data.discount);
+            setCouponCode(code);
+            toast.success(response.data.message);
+        } else {
+            setDiscount(0);
+            setCouponCode("");
+            toast.error(response.data.message);
+        }
+    } catch (error) {
+        console.log(error);
+        toast.error("Error applying coupon");
+    }
+  };
+
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
@@ -269,7 +294,12 @@ const ShopContextProvider = (props) => {
     category,
     setCategory,
     subCategory,
-    setSubCategory
+    setSubCategory,
+    couponCode,
+    setCouponCode,
+    discount,
+    setDiscount,
+    applyCoupon
   };
 
   return (

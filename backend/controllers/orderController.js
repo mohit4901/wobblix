@@ -36,7 +36,16 @@ const formatItems = (items) => {
 // ================= RAZORPAY =================
 const placeOrderRazorpay = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body;
+    const { userId, items, amount, address, couponCode } = req.body;
+
+    // Verify coupon on server side to prevent tampering
+    let discount = 0;
+    if (couponCode === 'NEW10') {
+        const previousOrders = await orderModel.find({ userId, payment: true });
+        if (previousOrders.length === 0) {
+            discount = 0.1; // 10%
+        }
+    }
 
     const formattedItems = formatItems(items);
 
@@ -76,6 +85,29 @@ const placeOrderRazorpay = async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 };
+
+// ================= COUPON VALIDATION =================
+const verifyCoupon = async (req, res) => {
+    try {
+        const { userId, couponCode } = req.body;
+
+        if (couponCode !== 'NEW10') {
+            return res.json({ success: false, message: "Invalid Coupon Code" });
+        }
+
+        // Check if user is a newcomer
+        const previousOrders = await orderModel.find({ userId, payment: true });
+        if (previousOrders.length > 0) {
+            return res.json({ success: false, message: "Coupon valid for first order only" });
+        }
+
+        res.json({ success: true, discount: 10, message: "10% Discount Applied!" });
+
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
+    }
+}
 
 
 // ================= VERIFY RAZORPAY =================
@@ -251,5 +283,6 @@ export {
   allOrders,
   userOrders,
   updateStatus,
-  razorpayWebhook
+  razorpayWebhook,
+  verifyCoupon
 };
