@@ -24,6 +24,7 @@ const Collection = () => {
   const [subCategory, setSubCategory] = useState([])
   const [sortType, setSortType] = useState('relavent')
   const [currentPage, setCurrentPage] = useState(1)
+  const [bestsellerOnly, setBestsellerOnly] = useState(false)
 
   // URL → Context Sync
   useEffect(() => {
@@ -78,6 +79,10 @@ const Collection = () => {
         subCategory.includes(item.subCategory)
       )
     }
+    
+    if (bestsellerOnly) {
+      result = result.filter(item => item.bestseller)
+    }
 
     if (sortType === 'low-high') {
       result.sort((a, b) => a.price - b.price)
@@ -100,15 +105,7 @@ const Collection = () => {
     <div className="flex flex-col md:flex-row gap-10 pt-10 border-t border-gray-200 px-4 sm:px-10 lg:px-16 bg-[#edece8] min-h-screen relative">
       
       {/* MOBILE FIXED FILTER BUTTON */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 md:hidden">
-        <button 
-          onClick={() => setShowFilter(true)}
-          className="bg-black text-white px-10 py-4 rounded-full font-bold tracking-[0.3em] uppercase shadow-[0_10px_30px_rgba(0,0,0,0.3)] border-2 border-brand-red flex items-center gap-3 animate-bounce-subtle"
-        >
-          <img src={assets.search_icon} className="w-4 invert" alt="" />
-          Filters
-        </button>
-      </div>
+
 
       {/* MOBILE FILTER OVERLAY / DRAWER */}
       <div className={`fixed inset-0 bg-black/80 z-[60] backdrop-blur-sm transition-all duration-500 md:hidden ${showFilter ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
@@ -223,17 +220,29 @@ const Collection = () => {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
           <Title text1="ALL" text2="DROPS" />
           
-          <div className="relative w-full sm:w-auto">
-            <select
-              onChange={(e) => setSortType(e.target.value)}
-              className="w-full sm:w-60 appearance-none bg-white border border-gray-200 px-6 py-3 text-xs font-bold tracking-widest uppercase outline-none focus:border-brand-red transition-all cursor-pointer pr-10"
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Mobile Filter Button */}
+            <button 
+              onClick={() => setShowFilter(true)}
+              className="md:hidden flex-1 bg-black text-white px-6 py-3 font-black text-[10px] tracking-[0.2em] uppercase flex items-center justify-center gap-2"
             >
-              <option value="relavent">Sort by: Relevant</option>
-              <option value="low-high">Sort by: Low to High</option>
-              <option value="high-low">Sort by: High to Low</option>
-            </select>
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-              <img className="h-2 opacity-50" src={assets.dropdown_icon} alt="" />
+              <img src={assets.search_icon} className="w-3 invert" alt="" />
+              REFINE
+            </button>
+
+            {/* Sort Dropdown */}
+            <div className="relative flex-1 sm:w-60">
+              <select
+                onChange={(e) => setSortType(e.target.value)}
+                className="w-full appearance-none bg-white border border-gray-200 px-6 py-3 text-xs font-bold tracking-widest uppercase outline-none focus:border-black transition-all cursor-pointer pr-10"
+              >
+                <option value="relavent">Sort by: Relevant</option>
+                <option value="low-high">Sort by: Low to High</option>
+                <option value="high-low">Sort by: High to Low</option>
+              </select>
+              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                <img className="h-2 opacity-50" src={assets.dropdown_icon} alt="" />
+              </div>
             </div>
           </div>
         </div>
@@ -264,6 +273,7 @@ const Collection = () => {
                   name={item.name}
                   price={item.price}
                   image={item.image}
+                  badge={item.badge}
                 />
               </div>
             ))

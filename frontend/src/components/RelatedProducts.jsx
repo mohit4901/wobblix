@@ -67,6 +67,7 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
             name={item.name}
             price={item.price}
             image={item.image}
+            badge={item.badge}
           />
         ))}
       </div>

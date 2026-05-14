@@ -9,7 +9,9 @@ import { toast } from 'react-toastify'
 const PlaceOrder = () => {
 
     const [method, setMethod] = useState('razorpay');
+    const [loading, setLoading] = useState(false);
     const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products } = useContext(ShopContext);
+
 
     const [formData, setFormData] = useState({
         firstName: '',
@@ -46,8 +48,8 @@ const PlaceOrder = () => {
                         { headers: { token } }
                     )
                     if (data.success) {
-                        navigate('/orders')
                         setCartItems({})
+                        navigate('/order-success')
                     }
                 } catch (error) {
                     console.log(error)
@@ -64,6 +66,8 @@ const PlaceOrder = () => {
         event.preventDefault()
 
         try {
+            setLoading(true)
+
 
             let orderItems = []
 
@@ -84,9 +88,11 @@ const PlaceOrder = () => {
 
                         if (product) {
                             orderItems.push({
-                                productId: product._id,   // ✅ FIXED
+                                productId: product._id,
                                 name: product.name,
                                 price: product.price,
+                                image: product.image, // Save image in order
+
                                 size: item,
                                 quantity: quantity,
                                 instruction: instruction
@@ -119,97 +125,110 @@ const PlaceOrder = () => {
         } catch (error) {
             console.log(error)
             toast.error(error.message)
+        } finally {
+            setLoading(false)
         }
+
     }
 
     return (
-        <form onSubmit={onSubmitHandler} className='flex flex-col sm:flex-row justify-between gap-4 pt-5 sm:pt-14 min-h-[80vh] border-t px-4 sm:px-10 lg:px-16'>
+        <form onSubmit={onSubmitHandler} className='flex flex-col lg:flex-row justify-between gap-16 pt-14 pb-20 min-h-screen bg-[#edece8] px-4 sm:px-10 lg:px-24'>
 
-            {/* LEFT */}
-            <div className='flex flex-col gap-6 w-full sm:max-w-[550px] bg-white p-8 border border-gray-100 shadow-sm'>
+            {/* LEFT: DELIVERY INFO */}
+            <div className='flex-1 flex flex-col gap-8 bg-white p-10 shadow-sm'>
+                <Title text1={'DELIVERY'} text2={'INFO'} />
 
-                <div className='text-xl sm:text-2xl mb-6'>
-                    <Title text1={'DELIVERY'} text2={'INFORMATION'} />
-                </div>
-
-                <div className='flex gap-4'>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">First Name</label>
-                        <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' placeholder='Mohit' />
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">First Name</label>
+                        <input required onChange={onChangeHandler} name='firstName' value={formData.firstName} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' placeholder='Mohit' />
                     </div>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Last Name</label>
-                        <input required onChange={onChangeHandler} name='lastName' value={formData.lastName} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' placeholder='Mudgil' />
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Last Name</label>
+                        <input required onChange={onChangeHandler} name='lastName' value={formData.lastName} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' placeholder='Mudgil' />
                     </div>
                 </div>
 
-                <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Email Address</label>
-                    <input required onChange={onChangeHandler} name='email' value={formData.email} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' type="email" placeholder='mohit@example.com' />
+                <div className="flex flex-col">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Email Address</label>
+                    <input required onChange={onChangeHandler} name='email' value={formData.email} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' type="email" placeholder='mohit@example.com' />
                 </div>
 
-                <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Street Address</label>
-                    <input required onChange={onChangeHandler} name='street' value={formData.street} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' placeholder='House No, Street Name' />
+                <div className="flex flex-col">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Street Address</label>
+                    <input required onChange={onChangeHandler} name='street' value={formData.street} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' placeholder='House No, Street Name' />
                 </div>
 
-                <div className='flex gap-4'>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">City</label>
-                        <input required onChange={onChangeHandler} name='city' value={formData.city} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' placeholder='Panipat' />
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">City</label>
+                        <input required onChange={onChangeHandler} name='city' value={formData.city} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' placeholder='Panipat' />
                     </div>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">State</label>
-                        <input required onChange={onChangeHandler} name='state' value={formData.state} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' placeholder='Haryana' />
-                    </div>
-                </div>
-
-                <div className='flex gap-4'>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Zipcode</label>
-                        <input required onChange={onChangeHandler} name='zipcode' value={formData.zipcode} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' type="number" placeholder='132103' />
-                    </div>
-                    <div className="flex-1">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Country</label>
-                        <input required onChange={onChangeHandler} name='country' value={formData.country} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' placeholder='India' />
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">State</label>
+                        <input required onChange={onChangeHandler} name='state' value={formData.state} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' placeholder='Haryana' />
                     </div>
                 </div>
 
-                <div>
-                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block">Mobile Number</label>
-                    <input required onChange={onChangeHandler} name='phone' value={formData.phone} className='w-full border border-gray-200 px-4 py-3 text-sm focus:border-brand-red outline-none bg-brand-bone/10 transition-all' type="tel" placeholder='9876543210' />
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Zipcode</label>
+                        <input required onChange={onChangeHandler} name='zipcode' value={formData.zipcode} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' type="number" placeholder='132103' />
+                    </div>
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Country</label>
+                        <input required onChange={onChangeHandler} name='country' value={formData.country} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' placeholder='India' />
+                    </div>
+                </div>
+
+                <div className="flex flex-col">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Mobile Number</label>
+                    <input required onChange={onChangeHandler} name='phone' value={formData.phone} className='border-b-2 border-gray-100 py-3 text-sm font-bold focus:border-black outline-none transition-all' type="tel" placeholder='9876543210' />
                 </div>
             </div>
 
-            {/* RIGHT */}
-            <div className='mt-8'>
+            {/* RIGHT: SUMMARY & PAYMENT */}
+            <div className='lg:w-[450px] space-y-12'>
+                
+                <div className="bg-black text-white p-10 shadow-2xl">
+                    <CartTotal />
+                </div>
 
-                <CartTotal />
-
-                <div className='mt-12'>
-                    <Title text1={'PAYMENT'} text2={'METHOD'} />
+                <div className='bg-white p-10 shadow-sm'>
+                    <div className="mb-8">
+                       <Title text1={'PAYMENT'} text2={'METHOD'} />
+                    </div>
 
                     <div className="space-y-4">
                         <div 
                             onClick={() => setMethod('razorpay')} 
-                            className={`flex items-center justify-between border px-6 py-4 cursor-pointer transition-all duration-300 ${method === 'razorpay' ? 'border-brand-red bg-white shadow-[4px_4px_0px_0px_rgba(230,0,0,1)]' : 'border-gray-200 bg-gray-50'}`}
+                            className={`flex items-center justify-between border-2 px-6 py-5 cursor-pointer transition-all duration-300 ${method === 'razorpay' ? 'border-black bg-gray-50' : 'border-gray-100 opacity-60'}`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className={`w-4 h-4 border-2 rounded-full flex items-center justify-center ${method === 'razorpay' ? 'border-brand-red' : 'border-gray-300'}`}>
-                                    {method === 'razorpay' && <div className="w-2 h-2 bg-brand-red rounded-full"></div>}
-                                </div>
-                                <span className="text-xs font-bold tracking-widest uppercase">Secure Checkout</span>
+                                <div className={`w-3 h-3 rounded-full ${method === 'razorpay' ? 'bg-black' : 'bg-gray-200'}`}></div>
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">Online Payment</span>
                             </div>
-                            <img className='h-5' src={assets.razorpay_logo} alt="Razorpay" />
+                            <img className='h-4' src={assets.razorpay_logo} alt="Razorpay" />
                         </div>
                     </div>
 
                     <button 
                         type='submit' 
-                        className='w-full bg-black text-white px-16 py-4 mt-10 text-xs font-bold tracking-[0.3em] uppercase hover:bg-brand-red transition-all duration-300 shadow-[8px_8px_0px_0px_rgba(230,0,0,1)] hover:shadow-none animate-button-pulse hover:scale-105'
+                        disabled={loading}
+                        className='w-full bg-black text-white py-5 mt-10 font-black tracking-[0.3em] uppercase hover:bg-brand-red transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-4'
                     >
-                        COMPLETE PURCHASE
+                        {loading ? (
+                            <>
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                PROCESSING...
+                            </>
+                        ) : 'COMPLETE ORDER'}
                     </button>
+
+                    
+                    <p className="text-[9px] text-center text-gray-400 mt-6 uppercase tracking-widest font-bold italic">
+                        Secured by Razorpay Encryption
+                    </p>
                 </div>
             </div>
 

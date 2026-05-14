@@ -14,23 +14,27 @@ const Navbar = () => {
     navigate,
     token,
     setToken,
-    setCartItems
+    setCartItems,
+    setUserData
   } = useContext(ShopContext)
 
   const logout = () => {
     navigate('/login')
     localStorage.removeItem('token')
     setToken('')
+    setUserData(false)
     setCartItems({})
   }
 
   return (
     <div className="w-full">
 
-      {/* 🔹 Announcement Bar */}
+      {/* Announcement Bar */}
+
       <AnnouncementBar />
 
-      {/* 🔹 TOP INFO BAR (Desktop only) */}
+      {/* TOP INFO BAR */}
+
       <div className="hidden sm:flex justify-between items-center px-6 sm:px-10 lg:px-16 py-2 text-[15px] border-b">
         <p>&nbsp; support@wobblix.com</p>
         <div className="flex items-center gap-4">
@@ -38,14 +42,15 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 🔹 MAIN NAVBAR */}
+      {/* MAIN NAVBAR */}
+
       <div className="flex bg-[#edece8] items-center justify-between px-4 sm:px-10 lg:px-16 py-2 sm:py-4 font-medium">
 
         {/* Logo */}
         <Link to="/">
           <img
             src={assets.logo}
-            className="w-28 sm:w-40 animate-slow-pulse"
+            className="w-28 sm:w-40"
             alt="logo"
           />
         </Link>
@@ -70,32 +75,38 @@ const Navbar = () => {
 
           {/* Profile */}
           <div className="group relative">
-            <img
+            <div 
               onClick={() => token ? null : navigate('/login')}
-              className="w-4 sm:w-5 cursor-pointer"
-              src={assets.profile_icon}
-              alt=""
-            />
+              className="flex items-center gap-2 cursor-pointer bg-white sm:bg-transparent px-3 py-1.5 sm:p-0 rounded-none border border-black sm:border-none transition-all hover:bg-black hover:text-white sm:hover:bg-transparent sm:hover:text-black group"
+            >
+              <img
+                className="w-4 sm:w-5"
+                src={assets.profile_icon}
+                alt="Profile"
+              />
+              <span className="hidden sm:block text-[10px] font-black tracking-widest uppercase">
+                {token ? 'ACCOUNT' : 'LOGIN'}
+              </span>
+            </div>
+
             {token && (
-              <div className="hidden group-hover:block absolute right-0 pt-4">
-                <div className="flex flex-col gap-2 w-36 py-3 px-5 bg-white border text-sm">
-                  <p onClick={() => navigate('/profile')} className="cursor-pointer hover:text-brand-red transition">My Profile</p>
-                  <p
-                    onClick={() => navigate('/orders')}
-                    className="cursor-pointer hover:text-brand-red transition"
-                  >
-                    Orders
-                  </p>
-                  <p
-                    onClick={logout}
-                    className="cursor-pointer hover:text-brand-red transition"
-                  >
-                    Logout
-                  </p>
+              <div className="hidden group-hover:block absolute right-0 pt-4 z-50">
+                <div className="flex flex-col w-48 bg-white border-2 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden">
+                  <div className="px-5 py-4 border-b border-gray-100 bg-gray-50">
+                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Signed in as</p>
+                     <p className="text-xs font-bold truncate">My Account</p>
+                  </div>
+                  <div className="flex flex-col py-2">
+                    <p onClick={() => navigate('/profile')} className="px-5 py-3 text-[11px] font-black uppercase tracking-widest cursor-pointer hover:bg-black hover:text-white transition-colors">My Profile</p>
+                    <p onClick={() => navigate('/orders')} className="px-5 py-3 text-[11px] font-black uppercase tracking-widest cursor-pointer hover:bg-black hover:text-white transition-colors">Orders</p>
+                    <hr className="border-gray-100 mx-2 my-1" />
+                    <p onClick={logout} className="px-5 py-3 text-[11px] font-black uppercase tracking-widest cursor-pointer text-brand-red hover:bg-brand-red hover:text-white transition-colors">Logout</p>
+                  </div>
                 </div>
               </div>
             )}
           </div>
+
 
           {/* Cart */}
           <Link to="/cart" className="relative">
@@ -119,7 +130,8 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* 🔹 MOBILE SIDEBAR */}
+      {/* MOBILE SIDEBAR */}
+
       <div
         className={`absolute top-0 right-0 bottom-0 bg-[#edece8] z-50 overflow-hidden transition-all duration-300 ${
           visible ? 'w-full' : 'w-0'

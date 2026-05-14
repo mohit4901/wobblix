@@ -8,24 +8,24 @@ const CartTotal = () => {
 
   return (
     <div className='w-full'>
-      <div className='text-2xl'>
-        <Title text1={'CART'} text2={'TOTALS'} />
+      <div className='mb-8 pb-4 border-b border-gray-800'>
+         <h2 className="text-xl font-black uppercase tracking-widest text-white">Summary</h2>
       </div>
 
-      <div className='flex flex-col gap-2 mt-2 text-sm'>
-            <div className='flex justify-between'>
-                <p>Subtotal</p>
+      <div className='flex flex-col gap-4 text-xs font-bold uppercase tracking-widest'>
+            <div className='flex justify-between items-center'>
+                <p className="text-gray-400">Subtotal</p>
                 <p>{currency} {getCartAmount()}.00</p>
             </div>
-            <hr />
-            <div className='flex justify-between'>
-                <p>Shipping Fee</p>
+            <div className='flex justify-between items-center'>
+                <p className="text-gray-400">Shipping Fee</p>
                 <p>{currency} {delivery_fee}.00</p>
             </div>
-            <hr />
-            <div className='flex justify-between'>
-                <b>Total</b>
-                <b>{currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00</b>
+            <div className='pt-6 mt-2 border-t border-gray-800 flex justify-between items-center text-lg'>
+                <p className="text-white font-black">Total</p>
+                <p className="text-white font-black">
+                   {currency} {getCartAmount() === 0 ? 0 : getCartAmount() + delivery_fee}.00
+                </p>
             </div>
       </div>
     </div>
@@ -33,3 +33,4 @@ const CartTotal = () => {
 }
 
 export default CartTotal
+

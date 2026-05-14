@@ -18,6 +18,7 @@ const orderSchema = new mongoose.Schema({
   paymentMethod: { type: String, required: true },
   payment: { type: Boolean, default: false },
   date: { type: Number, required: true },
+  razorpayOrderId: { type: String, default: '' },
 
   // Delivery Tracking Integration
   trackingNumber: { type: String, default: '' },

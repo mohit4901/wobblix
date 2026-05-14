@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
 import axios from 'axios'
+import { assets } from '../assets/assets'
 
 const ORDER_STEPS = [
   'Order Placed',
@@ -79,8 +80,8 @@ const Orders = () => {
                 <div className='flex gap-6 text-sm'>
                   <img
                     className='w-16 sm:w-20'
-                    src={item.image[0]}
-                    alt=""
+                    src={(item.image && item.image[0]) || assets.logo}
+                    alt={item.name}
                   />
                   <div>
                     <p className='font-medium'>{item.name}</p>
@@ -119,15 +120,17 @@ const Orders = () => {
                 </div>
               </div>
 
-              {/* 🔽 TRACKING PANEL */}
+              {/* TRACKING PANEL */}
+
               {openTracker === index && (
                 <div className='mt-4 bg-brand-bone/50 border border-gray-100 rounded-sm p-6 animate-fade-in-up'>
                   
                   {/* COURIER INFO */}
                   {item.status === 'Order Placed' ? (
                     <div className="mb-6 p-4 bg-white border-l-4 border-black text-xs font-bold tracking-widest uppercase">
-                      🚀 We are preparing your drops. Warehouse team is on it.
+                      We are preparing your drops. Warehouse team is on it.
                     </div>
+
                   ) : item.trackingNumber ? (
                     <div className="mb-6 p-5 bg-white border border-gray-200 shadow-sm text-[11px] uppercase tracking-wider">
                       <div className="flex justify-between items-start mb-4">
@@ -146,8 +149,9 @@ const Orders = () => {
                     </div>
                   ) : (
                     <div className="mb-6 p-4 bg-white border-l-4 border-brand-red text-xs font-bold tracking-widest uppercase">
-                      📦 Your order is being packed for shipment.
+                      Your order is being packed for shipment.
                     </div>
+
                   )}
 
                   {/* STEP TRACKER */}

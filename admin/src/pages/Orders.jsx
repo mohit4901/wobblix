@@ -71,21 +71,17 @@ const Orders = ({ token }) => {
             <div>
               <div>
                 {order.items.map((item, index) => (
-                  <div key={index} className='py-1'>
-
-                    <p>
-                      {item.name} x {item.quantity}{' '}
-                      <span className='font-medium'>({item.size})</span>
-                    </p>
-
-                    {/* ✅ NEW: SHOW COLOR */}
-                    {item.instruction && (
-                      <p className='text-xs text-blue-600'>
-                        🎨 Color: {item.instruction}
+                    <div key={index} className='flex items-center gap-3 py-1'>
+                      {item.image && item.image[0] && (
+                        <img className='w-8 h-8 rounded border border-gray-100 object-cover' src={item.image[0]} alt="" />
+                      )}
+                      <p className='text-gray-900 font-bold'>
+                        {item.name || 'Legacy Order Product'} 
+                        <span className='text-gray-500 font-medium ml-2'>
+                          x {item.quantity} ({item.size})
+                        </span>
                       </p>
-                    )}
-
-                  </div>
+                    </div>
                 ))}
               </div>
 

@@ -12,7 +12,7 @@ const ShopContextProvider = (props) => {
   const currency = "₹";
 
   const SHIPPING_CHARGES = {
-    india: 80
+    india: 100
   };
 
   const [search, setSearch] = useState("");
@@ -21,6 +21,7 @@ const ShopContextProvider = (props) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState("");
+  const [userData, setUserData] = useState(false);
   const [shippingRegion, setShippingRegion] = useState("india");
 
   const [category, setCategory] = useState("");
@@ -29,14 +30,16 @@ const ShopContextProvider = (props) => {
   const navigate = useNavigate();
   const delivery_fee = SHIPPING_CHARGES[shippingRegion];
 
-  // ---------------- BACKEND WARMUP ----------------
+  // BACKEND WARMUP
+
   useEffect(() => {
     if (backendUrl) {
       fetch(backendUrl + "/").catch(() => {});
     }
   }, [backendUrl]);
 
-  // ---------------- PRODUCTS FETCH ----------------
+  // PRODUCTS FETCH
+
   const getProductsData = async () => {
     try {
       setLoading(true);
@@ -66,7 +69,8 @@ const ShopContextProvider = (props) => {
     }
   }, [category, subCategory, backendUrl]);
 
-  // ---------------- CART LOGIC ----------------
+  // CART LOGIC
+
   const addToCart = async (itemId, size) => {
 
     if (!token) {
@@ -126,7 +130,8 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  // ---------------- UPDATE QUANTITY ----------------
+  // UPDATE QUANTITY
+
   const updateQuantity = async (itemId, size, quantity, instruction = "") => {
 
     let cartData = structuredClone(cartItems);
@@ -158,7 +163,8 @@ const ShopContextProvider = (props) => {
     }
   };
 
-  // ---------------- COUNT ----------------
+  // COUNT
+
   const getCartCount = () => {
     let total = 0;
     for (const i in cartItems) {
@@ -170,7 +176,8 @@ const ShopContextProvider = (props) => {
     return total;
   };
 
-  // ---------------- AMOUNT ----------------
+  // AMOUNT
+
   const getCartAmount = () => {
     let total = 0;
 
@@ -188,7 +195,8 @@ const ShopContextProvider = (props) => {
     return total;
   };
 
-  // ---------------- USER CART ----------------
+  // USER DATA
+
   const getUserCart = async (token) => {
     try {
       const res = await axios.post(
@@ -205,11 +213,32 @@ const ShopContextProvider = (props) => {
     }
   };
 
+  const loadUserProfile = async (token) => {
+    try {
+      const res = await axios.get(backendUrl + "/api/user/profile", {
+        headers: { token }
+      });
+      if (res.data.success) {
+        setUserData(res.data.user);
+      } else {
+        setToken("");
+        localStorage.removeItem("token");
+        toast.error(res.data.message || "Session expired. Please login again.");
+      }
+    } catch (error) {
+      console.log(error);
+      setToken("");
+      localStorage.removeItem("token");
+      toast.error("Failed to load profile. Please login again.");
+    }
+  };
+
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
       setToken(savedToken);
       getUserCart(savedToken);
+      loadUserProfile(savedToken);
     }
   }, []);
 
@@ -234,6 +263,9 @@ const ShopContextProvider = (props) => {
     backendUrl,
     setToken,
     token,
+    userData,
+    setUserData,
+    loadUserProfile,
     category,
     setCategory,
     subCategory,

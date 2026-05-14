@@ -22,7 +22,7 @@ const Add = ({ token }) => {
   const [sizes, setSizes] = useState([]);
   const [colour, setColour] = useState("");
   const [bestseller, setBestseller] = useState(false);
-
+  const [badge, setBadge] = useState("");
   const [loading, setLoading] = useState(false);
 
   /* ---------------- IMAGE COMPRESSION ---------------- */
@@ -87,6 +87,7 @@ const Add = ({ token }) => {
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("colour", colour);
       formData.append("bestseller", bestseller);
+      formData.append("badge", badge);
 
       images.forEach((img) => {
         formData.append("images", img);
@@ -100,7 +101,7 @@ const Add = ({ token }) => {
             "Content-Type": "multipart/form-data",
             token
           },
-          timeout: 30000,
+          timeout: 60000,
           onUploadProgress: (e) => {
             const percent = Math.round((e.loaded * 100) / e.total);
             setUploadProgress(percent);
@@ -119,6 +120,7 @@ const Add = ({ token }) => {
         setSizes([]);
         setColour("");
         setBestseller(false);
+        setBadge("");
         setImages([]);
         setUploadProgress(0);
       } else {
@@ -208,13 +210,60 @@ const Add = ({ token }) => {
       />
 
       {/* ---------------- DESCRIPTION ---------------- */}
-      <textarea
-        required
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description"
-        className="px-3 py-2 border"
-      />
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <p className="mb-2">Description</p>
+          <button 
+            type="button"
+            onClick={async () => {
+              if (!description) return toast.error("Enter description first");
+              try {
+                toast.info("AI is formatting...");
+                const res = await axios.post(backendUrl + "/api/product/ai-format", { description }, { headers: { token } });
+                if (res.data.success) {
+                  setDescription(res.data.formattedDescription);
+                  toast.success("Formatted by AI");
+                }
+              } catch (err) {
+                toast.error("AI Formatting failed");
+              }
+            }}
+            className="text-[10px] font-bold bg-pink-100 text-pink-600 px-3 py-1 rounded-full uppercase tracking-widest hover:bg-pink-200 transition-all"
+          >
+            ✨ AI Format (NVIDIA)
+          </button>
+        </div>
+        <div className="flex flex-wrap gap-2 mb-2">
+          <button 
+            type="button" 
+            onClick={() => setDescription(prev => prev + "\n# ")} 
+            className="text-[10px] font-bold border border-black px-3 py-1 uppercase hover:bg-black hover:text-white transition-all"
+          >
+            + Heading
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setDescription(prev => prev + "\n- ")} 
+            className="text-[10px] font-bold border border-black px-3 py-1 uppercase hover:bg-black hover:text-white transition-all"
+          >
+            + Bullet
+          </button>
+          <button 
+            type="button" 
+            onClick={() => setDescription(prev => prev + "\n\n")} 
+            className="text-[10px] font-bold border border-black px-3 py-1 uppercase hover:bg-black hover:text-white transition-all"
+          >
+            + Spacer
+          </button>
+        </div>
+        <textarea
+          required
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Use # for Heading and - for Bullets for a sexy formatted look."
+          className="px-3 py-2 border h-48 font-mono text-sm"
+        />
+      </div>
 
       {/* ---------------- CATEGORY & SUBCATEGORY ---------------- */}
       <div className="flex gap-4">
@@ -249,13 +298,21 @@ const Add = ({ token }) => {
         className="px-3 py-2 border w-40"
       />
 
-      {/* ---------------- COLOUR ---------------- */}
-      <input
-        value={colour}
-        onChange={(e) => setColour(e.target.value)}
-        placeholder="Colour (optional)"
-        className="px-3 py-2 border"
-      />
+      {/* ---------------- COLOUR & BADGE ---------------- */}
+      <div className="flex gap-4">
+        <input
+          value={colour}
+          onChange={(e) => setColour(e.target.value)}
+          placeholder="Colour (optional)"
+          className="px-3 py-2 border flex-1"
+        />
+        <input
+          value={badge}
+          onChange={(e) => setBadge(e.target.value)}
+          placeholder="Ribbon Text (e.g. HOT, NEW)"
+          className="px-3 py-2 border flex-1"
+        />
+      </div>
 
       {/* ---------------- SIZES ---------------- */}
       <div className="flex gap-3">

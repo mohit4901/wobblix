@@ -1,7 +1,10 @@
 import orderModel from "../models/orderModel.js";
+import productModel from "../models/productModel.js";
 import userModel from "../models/userModel.js";
 import razorpay from "razorpay";
 import crypto from "crypto";
+import { sendOrderConfirmationEmail } from "../utils/emailService.js";
+
 
 // global variables
 const currency = "inr";
@@ -13,14 +16,16 @@ const razorpayInstance = new razorpay({
 });
 
 
-// ✅ COMMON FUNCTION (IMPORTANT 🔥)
+// Common function for item formatting
+
 // sanitize items (ensure instruction exists)
 const formatItems = (items) => {
   return items.map((item) => ({
     productId: item.productId,
     size: item.size,
     quantity: item.quantity,
-    instruction: item.instruction || "", // ✅ ensure always present
+    instruction: item.instruction || "", // Ensure field exists
+
     name: item.name || "",
     price: item.price || 0,
   }));
@@ -54,13 +59,18 @@ const placeOrderRazorpay = async (req, res) => {
       notes: { orderId: newOrder._id.toString() }
     };
 
-    await razorpayInstance.orders.create(options, (error, order) => {
+    await razorpayInstance.orders.create(options, async (error, order) => {
       if (error) {
         console.log(error);
         return res.json({ success: false, message: error });
       }
+      
+      // Update the order in DB with the Razorpay Order ID
+      await orderModel.findByIdAndUpdate(newOrder._id, { razorpayOrderId: order.id });
+      
       res.json({ success: true, order });
     });
+
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
@@ -71,21 +81,36 @@ const placeOrderRazorpay = async (req, res) => {
 // ================= VERIFY RAZORPAY =================
 const verifyRazorpay = async (req, res) => {
   try {
-    const { userId, razorpay_order_id } = req.body;
+    const { userId, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
-    const orderInfo = await razorpayInstance.orders.fetch(
-      razorpay_order_id
-    );
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
 
-    if (orderInfo.status === "paid") {
-      await orderModel.findByIdAndUpdate(orderInfo.receipt, {
+    const expectedSignature = crypto
+      .createHmac("sha256", secret)
+      .update(body.toString())
+      .digest("hex");
+
+    if (expectedSignature === razorpay_signature) {
+      
+      // Verification logic (Bulletproof)
+      const orderInfo = await razorpayInstance.orders.fetch(razorpay_order_id);
+      
+      const order = await orderModel.findByIdAndUpdate(orderInfo.receipt, {
         payment: true,
       });
-      await userModel.findByIdAndUpdate(userId, { cartData: {} });
+
+      // Send Email
+      if (order) {
+        const user = await userModel.findById(userId);
+        sendOrderConfirmationEmail(order, user.email);
+        await userModel.findByIdAndUpdate(userId, { cartData: {} });
+      }
 
       res.json({ success: true, message: "Payment Successful" });
     } else {
-      res.json({ success: false, message: "Payment Failed" });
+
+      res.json({ success: false, message: "Payment Failed: Signature mismatch" });
     }
   } catch (error) {
     console.log(error);
@@ -98,12 +123,33 @@ const verifyRazorpay = async (req, res) => {
 const allOrders = async (req, res) => {
   try {
     const orders = await orderModel.find({});
-    res.json({ success: true, orders });
+    
+    // Enrich orders: Fetch names/images for older orders
+
+    const enrichedOrders = await Promise.all(orders.map(async (order) => {
+      const enrichedItems = await Promise.all(order.items.map(async (item) => {
+        if (!item.name || !item.image) {
+          const product = await productModel.findById(item.productId);
+          if (product) {
+            return {
+              ...item.toObject(),
+              name: product.name,
+              image: product.image
+            }
+          }
+        }
+        return item;
+      }));
+      return { ...order.toObject(), items: enrichedItems };
+    }));
+
+    res.json({ success: true, orders: enrichedOrders });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
+
 
 
 // ================= USER =================
@@ -111,13 +157,36 @@ const userOrders = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    const orders = await orderModel.find({ userId });
-    res.json({ success: true, orders });
+    // Filter for paid orders
+
+    const orders = await orderModel.find({ userId, payment: true });
+    
+    // Enrich orders: Add names/images to old orders if missing
+
+    const enrichedOrders = await Promise.all(orders.map(async (order) => {
+      const enrichedItems = await Promise.all(order.items.map(async (item) => {
+        if (!item.name || !item.image) {
+          const product = await productModel.findById(item.productId);
+          if (product) {
+            return {
+              ...item.toObject(),
+              name: product.name,
+              image: product.image
+            }
+          }
+        }
+        return item;
+      }));
+      return { ...order.toObject(), items: enrichedItems };
+    }));
+
+    res.json({ success: true, orders: enrichedOrders });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });
   }
 };
+
 
 
 // ================= UPDATE STATUS & TRACKING =================
@@ -158,7 +227,11 @@ const razorpayWebhook = async (req, res) => {
         const orderId = req.body.payload.payment.entity.notes?.orderId;
         if (orderId) {
           const order = await orderModel.findByIdAndUpdate(orderId, { payment: true });
-          if (order) await userModel.findByIdAndUpdate(order.userId, { cartData: {} });
+          if (order) {
+             const user = await userModel.findById(order.userId);
+             sendOrderConfirmationEmail(order, user.email);
+             await userModel.findByIdAndUpdate(order.userId, { cartData: {} });
+          }
         }
       }
       res.json({ success: true });

@@ -1,4 +1,8 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+dns.setDefaultResultOrder("ipv4first");
 
 const connectDB = async () => {
     try {
@@ -7,7 +11,8 @@ const connectDB = async () => {
         });
 
         await mongoose.connect(process.env.MONGODB_URI, {
-            dbName: "e-commerce"
+            dbName: "e-commerce",
+            family: 4
         });
 
     } catch (error) {

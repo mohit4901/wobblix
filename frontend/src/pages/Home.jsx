@@ -1,7 +1,7 @@
 import Hero from '../components/Hero'
 import Categories from '../components/Categories'
 import LatestCollection from '../components/LatestCollection'
-import BestSeller from '../components/BestSeller'
+
 import AboutSection from '../components/AboutSection'
 import ContactPreview from '../components/ContactPreview'
 import NewsletterBox from '../components/NewsletterBox'
@@ -16,11 +16,10 @@ const Home = () => {
       {/* Categories */}
       <Categories />
 
-      {/* Products */}
+
+      {/* Our Products */}
       <LatestCollection />
 
-      {/* Best Sellers / Latest Drops */}
-      <BestSeller />
 
       {/* About Us */}
       <AboutSection />

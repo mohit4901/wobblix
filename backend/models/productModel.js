@@ -38,7 +38,18 @@ const productSchema = new mongoose.Schema({
   },
 
   bestseller: { type: Boolean, default: false },
-  date: { type: Number, required: true }
+  badge: { type: String, default: "" },
+  date: { type: Number, required: true },
+  
+  reviews: [
+    {
+      user: { type: String, required: true },
+      rating: { type: Number, required: true, min: 1, max: 5 },
+      comment: { type: String, required: true },
+      images: { type: Array, default: [] },
+      date: { type: Number, default: Date.now }
+    }
+  ]
 });
 
 const productModel =

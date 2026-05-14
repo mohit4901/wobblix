@@ -2,7 +2,7 @@ import React, { useContext } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { Link } from 'react-router-dom'
 
-const ProductItem = ({ id, image, name, price }) => {
+const ProductItem = ({ id, image, name, price, badge }) => {
   const { currency } = useContext(ShopContext)
 
   return (
@@ -11,68 +11,71 @@ const ProductItem = ({ id, image, name, price }) => {
         to={`/product/${id}`}
         onClick={() => window.scrollTo(0, 0)}
         className="block h-full"
+        aria-label={`View details for ${name}`}
       >
         {/* CARD */}
-        <div className="bg-white rounded-[28px] p-4 shadow-md h-full flex flex-col">
+        <div className="bg-white rounded-none border border-gray-100 hover:shadow-xl transition-all duration-300 h-full flex flex-col group">
 
           {/* IMAGE AREA */}
-          <div className="relative bg-[#f5f5f5] rounded-[20px] h-[180px] sm:h-[220px] flex items-center justify-center">
+          <div className="relative overflow-hidden aspect-[3/4] bg-[#f9f9f9]">
 
             {/* Wishlist */}
-            <div className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow flex items-center justify-center text-black hover:text-red-500 transition-colors cursor-pointer text-lg z-10">
+            <div className="absolute top-4 right-4 w-10 h-10 rounded-none bg-white shadow-sm flex items-center justify-center text-black hover:text-red-500 transition-colors cursor-pointer text-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity">
               ♥
             </div>
 
+            {/* Badge / Ribbon */}
+            {badge && (
+              <div className="absolute top-4 left-0 bg-black text-white text-[10px] font-black px-4 py-2 uppercase tracking-[0.2em] z-10 shadow-lg">
+                {badge}
+              </div>
+            )}
+
             <img
               src={image[0]}
-              alt={name}
-              className="max-h-[150px] sm:max-h-[170px] max-w-[85%] object-contain"
+              alt={`${name} - Wobblix Premium Streetwear`}
+              title={`${name} Streetwear`}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              loading="lazy"
             />
           </div>
 
           {/* CONTENT */}
-          <div className="mt-4 flex flex-col flex-1">
+          <div className="p-5 flex flex-col flex-1">
 
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="text-sm font-semibold leading-snug line-clamp-2">
+            <div className="flex items-start justify-between gap-4 mb-2">
+              <h3 className="text-sm font-black uppercase tracking-tight leading-tight text-black line-clamp-2">
                 {name}
               </h3>
-
-              <div className="flex items-center gap-1 text-sm text-gray-500">
-                ★ <span>4.5</span>
-              </div>
+              <p className="text-sm font-black text-black whitespace-nowrap">
+                {currency}{price}
+              </p>
             </div>
 
-            <p className="text-xs text-gray-500 mt-1 line-clamp-2 uppercase tracking-wider font-medium">
-              Heavyweight fit. Engineered for the streets.
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold mb-6">
+              Wobblix Studio // Heavyweight
             </p>
 
             <div className="flex-1"></div>
 
-            <div className="mt-4 flex items-center justify-between">
-              <p className="text-lg font-semibold">
-                {currency}{price}
-              </p>
-
-              <button
-                type="button"
-                className="
-                  px-5 py-2
-                  bg-black
-                  text-white
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  uppercase
-                  hover:bg-gray-800
-                  transition
-                  shadow-md
-                "
-              >
-                + ADD
-              </button>
-            </div>
-
+            <button
+              type="button"
+              className="
+                w-full
+                py-4
+                bg-black
+                text-white
+                text-[10px]
+                font-black
+                tracking-[0.2em]
+                uppercase
+                hover:bg-brand-red
+                transition-all
+                duration-300
+              "
+            >
+              ADD TO BAG
+            </button>
           </div>
         </div>
       </Link>

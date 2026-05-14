@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 const Login = () => {
 
   const [currentState, setCurrentState] = useState('Login');
-  const { token, setToken, navigate, backendUrl } = useContext(ShopContext)
+  const { token, setToken, navigate, backendUrl, loadUserProfile } = useContext(ShopContext)
 
   const [name,setName] = useState('')
   const [password,setPasword] = useState('')
@@ -19,8 +19,9 @@ const Login = () => {
           
           const response = await axios.post(backendUrl + '/api/user/register',{name,email,password})
           if (response.data.success) {
-            setToken(response.data.token)
-            localStorage.setItem('token',response.data.token)
+            sessionStorage.setItem('verifyEmail', email);
+            toast.success(response.data.message);
+            navigate('/verify-email');
           } else {
             toast.error(response.data.message)
           }
@@ -31,6 +32,11 @@ const Login = () => {
           if (response.data.success) {
             setToken(response.data.token)
             localStorage.setItem('token',response.data.token)
+            loadUserProfile(response.data.token)
+          } else if (response.data.needsVerification) {
+            sessionStorage.setItem('verifyEmail', response.data.email);
+            toast.info(response.data.message);
+            navigate('/verify-email');
           } else {
             toast.error(response.data.message)
           }
