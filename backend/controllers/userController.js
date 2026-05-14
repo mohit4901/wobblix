@@ -60,8 +60,26 @@ const registerUser = async (req, res) => {
 
         // checking user already exists or not
         const exists = await userModel.findOne({ email });
+        
         if (exists) {
-            return res.json({ success: false, message: "User already exists" })
+            if (exists.isVerified) {
+                return res.json({ success: false, message: "User already exists" })
+            } else {
+                // If user exists but is not verified, update their info and send new OTP
+                const salt = await bcrypt.genSalt(10)
+                const hashedPassword = await bcrypt.hash(password, salt)
+                const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+                exists.name = name;
+                exists.password = hashedPassword;
+                exists.verifyOtp = otp;
+                exists.verifyOtpExpire = Date.now() + 15 * 60 * 1000;
+                
+                await exists.save();
+                sendVerificationOtpEmail(email, otp);
+
+                return res.json({ success: true, message: "Verification OTP sent to your email", email: exists.email })
+            }
         }
 
         // validating email format & strong password
