@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const messages = [
-  "WE SHIP WORLD WIDE",
-  "WE SHIP WORLD WIDE"
+  "USE CODE NEW10 FOR 10% OFF ON YOUR FIRST ORDER",
+  "FREE SHIPPING ON ALL ORDERS ABOVE ₹2000 // SHIP WORLDWIDE"
 ];
 
 const AnnouncementBar = () => {

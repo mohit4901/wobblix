@@ -215,7 +215,6 @@ const Product = () => {
         <div className='mt-24 max-w-3xl'>
           <div className='flex gap-12 border-b border-gray-200 mb-8'>
             <button className='pb-4 text-[10px] font-bold tracking-[0.2em] uppercase border-b-2 border-black'>DESCRIPTION</button>
-            <button className='pb-4 text-[10px] font-bold tracking-[0.2em] uppercase text-gray-400'>DETAILS</button>
           </div>
           <div className='text-sm text-gray-700 font-medium'>
             {formatDescription(productData.description)}
