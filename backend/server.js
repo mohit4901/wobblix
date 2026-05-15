@@ -71,14 +71,27 @@ app.use(express.json({ limit: '10kb' }))
 // 7. CORS
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'http://localhost:5175',
-      'https://wobblix.vercel.app',
-      'https://wobblixclothing.in',
-      'https://admin.wobblixclothing.in'
-    ],
+    origin: function (origin, callback) {
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'http://localhost:5175',
+        'https://wobblix.vercel.app',
+        'https://wobblix-4apk.vercel.app',
+        'https://wobblixclothing.in',
+        'https://www.wobblixclothing.in',
+        'https://admin.wobblixclothing.in'
+      ]
+
+      // Allow all Vercel preview deployments (wobblix-*.vercel.app)
+      const isVercelPreview = origin && /^https:\/\/wobblix-[a-z0-9-]+\.vercel\.app$/.test(origin)
+
+      if (!origin || allowedOrigins.includes(origin) || isVercelPreview) {
+        callback(null, true)
+      } else {
+        callback(new Error(`CORS: Origin ${origin} not allowed`))
+      }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'token'],
     credentials: true
