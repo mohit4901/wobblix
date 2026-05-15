@@ -1,6 +1,7 @@
 import React, { useContext } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { Link } from 'react-router-dom'
+import { optimizeCloudinaryUrl } from '../utils/imageOptimizer'
 
 const ProductItem = ({ id, image, name, price, badge }) => {
   const { currency } = useContext(ShopContext)
@@ -32,7 +33,7 @@ const ProductItem = ({ id, image, name, price, badge }) => {
             )}
 
             <img
-              src={image[0]}
+              src={optimizeCloudinaryUrl(image[0], 600)}
               alt={`${name} - Wobblix Premium Streetwear`}
               title={`${name} Streetwear`}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"

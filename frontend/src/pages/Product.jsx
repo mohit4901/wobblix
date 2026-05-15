@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { ShopContext } from '../context/ShopContext';
 import { assets } from '../assets/assets';
+import { optimizeCloudinaryUrl } from '../utils/imageOptimizer';
 import RelatedProducts from '../components/RelatedProducts';
 import ReviewSection from '../components/ReviewSection';
 import { toast } from 'react-toastify';
@@ -118,14 +119,14 @@ const Product = () => {
                 <img
                   key={index}
                   onClick={() => setImage(item)}
-                  src={item}
+                  src={optimizeCloudinaryUrl(item, 300)}
                   className={`w-[24%] sm:w-full sm:mb-4 flex-shrink-0 cursor-pointer border-2 transition-all ${image === item ? 'border-black' : 'border-transparent hover:border-gray-300'}`}
                   alt=""
                 />
               ))}
             </div>
             <div className='w-full sm:w-[85%] bg-white p-4 shadow-sm'>
-              <img className='w-full h-auto object-cover' src={image} alt="" />
+              <img className='w-full h-auto object-cover' src={optimizeCloudinaryUrl(image, 1200)} alt="" />
             </div>
           </div>
 

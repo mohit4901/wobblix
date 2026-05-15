@@ -3,6 +3,7 @@ import { ShopContext } from '../context/ShopContext'
 import Title from '../components/Title'
 import { assets } from '../assets/assets'
 import CartTotal from '../components/CartTotal'
+import { optimizeCloudinaryUrl } from '../utils/imageOptimizer'
 
 const Cart = () => {
   const { products, currency, cartItems, updateQuantity, navigate } =
@@ -57,7 +58,7 @@ const Cart = () => {
                   
                   {/* IMAGE */}
                   <div className="w-full sm:w-32 aspect-square bg-[#f5f5f5] flex-shrink-0">
-                    <img className="w-full h-full object-cover" src={productData.image[0]} alt="" />
+                    <img className="w-full h-full object-cover" src={optimizeCloudinaryUrl(productData.image[0], 200)} alt="" />
                   </div>
 
                   {/* DETAILS */}

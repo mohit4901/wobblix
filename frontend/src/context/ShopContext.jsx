@@ -44,8 +44,12 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     try {
-      setLoading(true);
+      // ⚡️ CACHING: Skip fetch if products are already loaded and no filter is active
+      if (products.length > 0 && !category && !subCategory) {
+        return;
+      }
 
+      setLoading(true);
       const res = await axios.get(
         backendUrl + "/api/product/list",
         { params: { category, subCategory } }
