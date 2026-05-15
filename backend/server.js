@@ -12,6 +12,7 @@ import 'express-async-errors'
 
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
+import mongoose from 'mongoose'
 
 import userRouter from './routes/userRoute.js'
 import productRouter from './routes/productRoute.js'
@@ -90,10 +91,31 @@ app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/order', orderRouter)
 
-// HEALTH & TEST ROUTES
-app.get('/health', (req, res) => res.status(200).send('OK'))
+// ─── HEALTH CHECK (Production-Grade for Uptime Bots) ───────────────────────
+app.get('/health', async (req, res) => {
+  const dbState = mongoose.connection.readyState
+  // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+  const dbStatus = dbState === 1 ? 'connected' : 'disconnected'
+  const isHealthy = dbState === 1
+
+  const healthReport = {
+    status: isHealthy ? 'healthy' : 'degraded',
+    timestamp: new Date().toISOString(),
+    uptime: `${Math.floor(process.uptime())}s`,
+    environment: process.env.NODE_ENV || 'development',
+    services: {
+      server: 'ok',
+      database: dbStatus,
+    }
+  }
+
+  return res
+    .status(isHealthy ? 200 : 503)
+    .json(healthReport)
+})
+
 app.get('/favicon.ico', (req, res) => res.status(204).end())
-app.get('/', (req, res) => res.send('API Working'))
+app.get('/', (req, res) => res.send('Wobblix API is Running 🚀'))
 
 // ---------------- GLOBAL ERROR HANDLER ----------------
 app.use((err, req, res, next) => {
