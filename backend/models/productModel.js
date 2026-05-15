@@ -9,6 +9,7 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
+    index: true,
     enum: [
       "Men",
       "Women",
@@ -18,6 +19,7 @@ const productSchema = new mongoose.Schema({
 
   subCategory: {
     type: String,
+    index: true,
     enum: [
       "Oversized T-Shirts",
       "Normal T-Shirts",
