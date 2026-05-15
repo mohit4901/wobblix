@@ -6,6 +6,9 @@ import rateLimit from 'express-rate-limit'
 import mongoSanitize from 'express-mongo-sanitize'
 import xss from 'xss-clean'
 import hpp from 'hpp'
+import compression from 'compression'
+import morgan from 'morgan'
+import 'express-async-errors'
 
 import connectDB from './config/mongodb.js'
 import connectCloudinary from './config/cloudinary.js'
@@ -24,9 +27,15 @@ const port = process.env.PORT || 4000
 connectDB()
 connectCloudinary()
 
-// ---------------- SECURITY MIDDLEWARES ----------------
+// ---------------- MIDDLEWARES ----------------
 
-// 1. SET SECURITY HTTP HEADERS (Optimized for Razorpay & Blobs)
+// 1. LOGGING (Production friendly)
+app.use(morgan('combined'))
+
+// 2. COMPRESSION (Speed up responses)
+app.use(compression())
+
+// 3. SECURITY HEADERS
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -42,25 +51,21 @@ app.use(helmet({
   },
 }))
 
-// 2. RATE LIMITING (Prevent DDoS/Brute Force)
+// 4. RATE LIMITING
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Too many requests from this IP, please try again after 15 minutes'
 })
 app.use('/api/', limiter)
 
-// 3. DATA SANITIZATION against NoSQL query injection
+// 5. DATA SANITIZATION
 app.use(mongoSanitize())
-
-// 4. DATA SANITIZATION against XSS
 app.use(xss())
-
-// 5. PREVENT HTTP PARAMETER POLLUTION
 app.use(hpp())
 
 // 6. BODY PARSER
-app.use(express.json({ limit: '10kb' })) // Limit body size
+app.use(express.json({ limit: '10kb' }))
 
 // 7. CORS
 app.use(
@@ -69,7 +74,6 @@ app.use(
       'http://localhost:5173',
       'http://localhost:5174',
       'http://localhost:5175',
-      'http://localhost:5176',
       'https://wobblix.vercel.app',
       'https://wobblixclothing.in',
       'https://admin.wobblixclothing.in'
@@ -80,31 +84,25 @@ app.use(
   })
 )
 
-// HEALTH ROUTE
-
-app.get("/health", (req, res) => {
-  res.status(200).send("OK");
-});
-
-// FAVICON HANDLER
-
-app.get('/favicon.ico', (req, res) => res.status(204).end());
-
-
-// PREFLIGHT REQUESTS
-
-app.options('*', cors())
-
 // ---------------- API ROUTES ----------------
 app.use('/api/user', userRouter)
 app.use('/api/product', productRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/order', orderRouter)
 
-// ---------------- TEST ROUTE ----------------
-app.get('/', (req, res) => {
-  res.send('API Working')
+// HEALTH & TEST ROUTES
+app.get('/health', (req, res) => res.status(200).send('OK'))
+app.get('/favicon.ico', (req, res) => res.status(204).end())
+app.get('/', (req, res) => res.send('API Working'))
 
+// ---------------- GLOBAL ERROR HANDLER ----------------
+app.use((err, req, res, next) => {
+  console.error('SERVER ERROR:', err.stack)
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  })
 })
 
 // ---------------- START SERVER ----------------
