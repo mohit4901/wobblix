@@ -43,10 +43,10 @@ const RelatedProducts = ({ category, subCategory, currentProductId }) => {
       </div>
 
       {/* MOBILE: Horizontal Scroll */}
-      <div className="md:hidden w-full overflow-x-auto">
-        <div className="flex gap-4 px-4 min-w-max">
+      <div className="md:hidden w-full overflow-x-auto pb-4 -mx-4 px-4" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-3" style={{ width: 'max-content' }}>
           {related.map((item, index) => (
-            <div key={index} className="min-w-[220px]">
+            <div key={index} className="w-[150px] flex-shrink-0">
               <ProductItem
                 id={item._id}
                 name={item.name}
