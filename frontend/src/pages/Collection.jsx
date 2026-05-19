@@ -35,6 +35,9 @@ const Collection = () => {
     if (urlSubCategory) {
       setSubCategory([urlSubCategory])
       setGlobalSubCategory(urlSubCategory)
+    } else {
+      setSubCategory([])
+      setGlobalSubCategory("")
     }
   }, [location.search])
 

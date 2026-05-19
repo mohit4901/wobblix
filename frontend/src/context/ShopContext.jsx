@@ -43,15 +43,14 @@ const ShopContextProvider = (props) => {
 
   const getProductsData = async () => {
     try {
-      // ⚡️ CACHING: Skip fetch if products are already loaded and no filter is active
-      if (products.length > 0 && !category && !subCategory) {
+      // ⚡️ CACHING: Skip fetch if products are already loaded
+      if (products.length > 0) {
         return;
       }
 
       setLoading(true);
       const res = await axios.get(
-        backendUrl + "/api/product/list",
-        { params: { category, subCategory } }
+        backendUrl + "/api/product/list"
       );
 
       if (res.data.success) {
@@ -72,7 +71,7 @@ const ShopContextProvider = (props) => {
     if (backendUrl) {
       getProductsData();
     }
-  }, [category, subCategory, backendUrl]);
+  }, [backendUrl]);
 
   // CART LOGIC
 
