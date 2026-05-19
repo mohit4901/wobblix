@@ -228,5 +228,140 @@ const aiFormatDescription = async (req, res) => {
   }
 };
 
-export { listProducts, addProduct, removeProduct, singleProduct, addReview, aiFormatDescription };
+// UPDATE PRODUCT
+const updateProduct = async (req, res) => {
+  try {
+    const {
+      id,
+      name,
+      description,
+      price,
+      category,
+      subCategory,
+      sizes,
+      colour,
+      bestseller,
+      badge,
+      imageSlots
+    } = req.body;
+
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required"
+      });
+    }
+
+    const product = await productModel.findById(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    // Process image slots
+    let parsedImageSlots = [];
+    if (imageSlots) {
+      try {
+        parsedImageSlots = JSON.parse(imageSlots);
+      } catch {
+        parsedImageSlots = [];
+      }
+    } else {
+      parsedImageSlots = product.image || [];
+    }
+
+    // Process new uploaded files
+    let files = [];
+    if (Array.isArray(req.files)) {
+      files = req.files;
+    } else if (req.files) {
+      files = Object.values(req.files).flat();
+    }
+
+    let newImageUrls = [];
+    if (files && files.length > 0) {
+      const uploadPromises = files.map((file) =>
+        cloudinary.uploader.upload(
+          `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+          { resource_type: "image", timeout: 60000 }
+        )
+      );
+      const results = await Promise.all(uploadPromises);
+      newImageUrls = results.map((r) => r.secure_url);
+    }
+
+    // Replace the placeholders with the uploaded image URLs in order
+    let uploadedCount = 0;
+    const finalImageUrls = parsedImageSlots.map((slot) => {
+      if (typeof slot === 'string' && slot.startsWith("new_file_")) {
+        const url = newImageUrls[uploadedCount];
+        uploadedCount++;
+        return url;
+      }
+      return slot;
+    }).filter(Boolean); // Filter out any empty/nulls if something went wrong
+
+    if (finalImageUrls.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one product image is required"
+      });
+    }
+
+    // SAFE SIZE PARSE
+    let parsedSizes = [];
+    if (sizes) {
+      try {
+        parsedSizes = JSON.parse(sizes);
+      } catch {
+        parsedSizes = [];
+      }
+    } else {
+      parsedSizes = product.sizes;
+    }
+
+    // CATEGORY NORMALIZATION
+    let safeCategory = product.category;
+    if (category) {
+      safeCategory = category
+        ?.toLowerCase()
+        .trim()
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+
+    // Update product fields
+    if (name !== undefined) product.name = name;
+    if (description !== undefined) product.description = description;
+    if (price !== undefined) product.price = Number(price);
+    if (category !== undefined) product.category = safeCategory;
+    if (subCategory !== undefined) product.subCategory = subCategory;
+    if (sizes !== undefined) product.sizes = parsedSizes;
+    if (colour !== undefined) product.colour = colour;
+    if (bestseller !== undefined) {
+      product.bestseller = bestseller === "true" || bestseller === true;
+    }
+    if (badge !== undefined) product.badge = badge;
+    product.image = finalImageUrls;
+
+    await product.save();
+
+    res.json({
+      success: true,
+      message: "Product Updated Successfully",
+      product
+    });
+
+  } catch (error) {
+    console.error("UPDATE PRODUCT ERROR 👉", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export { listProducts, addProduct, removeProduct, singleProduct, addReview, aiFormatDescription, updateProduct };
+
 

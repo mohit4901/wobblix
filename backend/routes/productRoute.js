@@ -5,7 +5,8 @@ import {
   removeProduct,
   singleProduct,
   addReview,
-  aiFormatDescription
+  aiFormatDescription,
+  updateProduct
 } from '../controllers/productController.js'
 import upload from '../middleware/multer.js'
 import adminAuth from '../middleware/adminAuth.js'
@@ -21,6 +22,13 @@ productRouter.post(
   addProduct
 )
 
+productRouter.post(
+  '/update',
+  adminAuth,
+  upload.array('images', 4), 
+  updateProduct
+)
+
 productRouter.post('/remove', adminAuth, removeProduct)
 productRouter.post('/single', singleProduct)
 productRouter.get('/list', listProducts)
@@ -28,3 +36,4 @@ productRouter.post('/review', upload.array('images', 4), addReview)
 productRouter.post('/ai-format', adminAuth, aiFormatDescription)
 
 export default productRouter
+

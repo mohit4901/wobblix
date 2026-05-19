@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar'
 import { Routes, Route } from 'react-router-dom'
 import Add from './pages/Add'
 import List from './pages/List'
+import Edit from './pages/Edit'
 import Orders from './pages/Orders'
 import Login from './components/Login'
 import { ToastContainer } from 'react-toastify';
@@ -34,6 +35,7 @@ const App = () => {
               <Routes>
                 <Route path='/add' element={<Add token={token} />} />
                 <Route path='/list' element={<List token={token} />} />
+                <Route path='/edit/:id' element={<Edit token={token} />} />
                 <Route path='/orders' element={<Orders token={token} />} />
               </Routes>
             </div>
