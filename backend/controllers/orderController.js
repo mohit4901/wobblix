@@ -73,9 +73,10 @@ const placeOrderRazorpay = async (req, res) => {
 
     const calculatedDiscountAmount = (calculatedSubtotal * discountPercent) / 100;
     
-    // Fallback to client delivery fee if india/global difference exists, standard is 100
-    const shippingFee = amount - (calculatedSubtotal - calculatedDiscountAmount - b4g1Discount) || 100;
-    const finalVerifiedAmount = Math.max(0, calculatedSubtotal - calculatedDiscountAmount - b4g1Discount + shippingFee);
+    // Dynamic shipping: FREE on orders >= ₹2000 (after B4G1 discount)
+    const actualSubtotal = calculatedSubtotal - b4g1Discount;
+    const shippingFee = actualSubtotal >= 2000 ? 0 : 100;
+    const finalVerifiedAmount = Math.max(0, actualSubtotal - calculatedDiscountAmount + shippingFee);
 
     const formattedItems = formatItems(items);
 

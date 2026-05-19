@@ -30,7 +30,6 @@ const ShopContextProvider = (props) => {
   const [subCategory, setSubCategory] = useState("");
 
   const navigate = useNavigate();
-  const delivery_fee = SHIPPING_CHARGES[shippingRegion];
 
   // BACKEND WARMUP
 
@@ -231,6 +230,17 @@ const ShopContextProvider = (props) => {
     return discountAmount;
   };
 
+  // DYNAMIC DELIVERY FEE (Free above ₹2000)
+  const getDeliveryFee = () => {
+    const subtotal = getCartAmount();
+    const b4g1Discount = getB4G1Discount();
+    const actualSubtotal = subtotal - b4g1Discount;
+    if (actualSubtotal >= 2000 || actualSubtotal === 0) {
+      return 0;
+    }
+    return SHIPPING_CHARGES[shippingRegion] || 100;
+  };
+
   // USER DATA
 
   const getUserCart = async (token) => {
@@ -305,7 +315,7 @@ const ShopContextProvider = (props) => {
     products,
     loading,
     currency,
-    delivery_fee,
+    delivery_fee: getDeliveryFee(),
     shippingRegion,
     setShippingRegion,
     search,
