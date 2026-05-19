@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 
 const messages = [
   "USE CODE NEW10 FOR 10% OFF ON YOUR FIRST ORDER",
-  "FREE SHIPPING ON ALL ORDERS ABOVE ₹2000 // SHIP WORLDWIDE"
+  "FREE SHIPPING ON ALL ORDERS ABOVE ₹2000 // SHIP WORLDWIDE",
+  "🔥 BUY 4 GET 1 FREE! APPLICABLE ON ALL TANK TOPS & OVERSIZED T-SHIRTS"
 ];
 
 const AnnouncementBar = () => {
