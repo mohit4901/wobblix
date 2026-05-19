@@ -22,6 +22,7 @@ const Edit = ({ token }) => {
 
   const [category, setCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("Oversized T-Shirts");
+  const [design, setDesign] = useState("");
 
   const [sizes, setSizes] = useState([]);
   const [colour, setColour] = useState("");
@@ -47,6 +48,7 @@ const Edit = ({ token }) => {
           setPrice(product.price ? String(product.price) : "");
           setCategory(product.category || "Men");
           setSubCategory(product.subCategory || "Oversized T-Shirts");
+          setDesign(product.design || "");
           setSizes(product.sizes || []);
           setColour(product.colour || "");
           setBestseller(product.bestseller || false);
@@ -148,6 +150,7 @@ const Edit = ({ token }) => {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
+      formData.append("design", design);
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("colour", colour);
       formData.append("bestseller", bestseller);
@@ -369,8 +372,8 @@ const Edit = ({ token }) => {
         />
       </div>
 
-      {/* ---------------- CATEGORY & SUBCATEGORY ---------------- */}
-      <div className="flex gap-4">
+      {/* ---------------- CATEGORY & SUBCATEGORY & DESIGN ---------------- */}
+      <div className="flex gap-4 flex-wrap">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium">Category</p>
           <select
@@ -395,6 +398,23 @@ const Edit = ({ token }) => {
             <option value="Normal T-Shirts">Normal T-Shirts</option>
             <option value="Tank Tops">Tank Tops</option>
             <option value="Hoodies">Hoodies</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <p className="text-sm font-medium">Design Tag</p>
+          <select
+            value={design}
+            onChange={(e) => setDesign(e.target.value)}
+            className="px-3 py-2 border focus:outline-black"
+          >
+            <option value="">Select Design (Optional)</option>
+            <option value="Anime">Anime</option>
+            <option value="Words">Words</option>
+            <option value="Artists">Artists</option>
+            <option value="Cars">Cars</option>
+            <option value="Winters">Winters</option>
+            <option value="Summers">Summers</option>
           </select>
         </div>
       </div>

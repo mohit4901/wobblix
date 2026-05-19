@@ -29,6 +29,21 @@ const productSchema = new mongoose.Schema({
     default: ""
   },
 
+  design: {
+    type: String,
+    index: true,
+    enum: [
+      "Anime",
+      "Words",
+      "Artists",
+      "Cars",
+      "Winters",
+      "Summers",
+      ""
+    ],
+    default: ""
+  },
+
   sizes: {
     type: Array,
     default: []

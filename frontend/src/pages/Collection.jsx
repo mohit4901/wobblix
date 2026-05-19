@@ -22,6 +22,7 @@ const Collection = () => {
   const [showFilter, setShowFilter] = useState(false)
   const [category, setCategory] = useState([])
   const [subCategory, setSubCategory] = useState([])
+  const [design, setDesign] = useState([])
   const [sortType, setSortType] = useState('relavent')
   const [currentPage, setCurrentPage] = useState(1)
   const [bestsellerOnly, setBestsellerOnly] = useState(false)
@@ -57,6 +58,16 @@ const Collection = () => {
     )
   }
 
+  const toggleDesign = (e) => {
+    setCurrentPage(1)
+    const value = e.target.value
+    setDesign(prev =>
+      prev.includes(value)
+        ? prev.filter(item => item !== value)
+        : [...prev, value]
+    )
+  }
+
   // 🔥 DERIVED FILTERED PRODUCTS (NO STATE SYNC BUG)
   const filteredProducts = useMemo(() => {
 
@@ -79,6 +90,12 @@ const Collection = () => {
         subCategory.includes(item.subCategory)
       )
     }
+
+    if (design.length > 0) {
+      result = result.filter(item =>
+        item.design && design.includes(item.design)
+      )
+    }
     
     if (bestsellerOnly) {
       result = result.filter(item => item.bestseller)
@@ -92,7 +109,7 @@ const Collection = () => {
 
     return result
 
-  }, [products, category, subCategory, search, showSearch, sortType])
+  }, [products, category, subCategory, design, search, showSearch, sortType])
 
   const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE)
 
@@ -145,6 +162,22 @@ const Collection = () => {
                     className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition-all ${subCategory.includes(sub) ? 'bg-brand-red text-white' : 'bg-white text-black border border-gray-200'}`}
                   >
                     {sub}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Design Filter */}
+            <div className="space-y-4">
+              <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">Designs</h3>
+              <div className="flex flex-wrap gap-3">
+                {['Anime', 'Words', 'Artists', 'Cars', 'Winters', 'Summers'].map(dsg => (
+                  <button 
+                    key={dsg}
+                    onClick={() => toggleDesign({target: {value: dsg}})}
+                    className={`px-6 py-3 text-xs font-bold uppercase tracking-widest transition-all ${design.includes(dsg) ? 'bg-brand-red text-white' : 'bg-white text-black border border-gray-200'}`}
+                  >
+                    {dsg}
                   </button>
                 ))}
               </div>
@@ -208,8 +241,32 @@ const Collection = () => {
                   <span className="text-sm font-medium text-gray-600 group-hover:text-black transition-colors uppercase tracking-wider">{sub}</span>
                 </label>
               ))}
+            </div>
           </div>
-        </div>
+
+          {/* Design Filter */}
+          <div className="bg-white border border-gray-200 p-6 shadow-sm">
+            <h3 className="mb-5 text-xs font-bold tracking-[0.2em] text-black uppercase border-b border-gray-100 pb-3">Designs</h3>
+            <div className="flex flex-col gap-3">
+              {['Anime', 'Words', 'Artists', 'Cars', 'Winters', 'Summers'].map(dsg => (
+                <label key={dsg} className="flex items-center gap-3 cursor-pointer group">
+                  <div className="relative flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      className="peer appearance-none w-5 h-5 border-2 border-gray-200 checked:bg-brand-red checked:border-brand-red transition-all cursor-pointer"
+                      value={dsg}
+                      checked={design.includes(dsg)}
+                      onChange={toggleDesign}
+                    />
+                    <svg className="absolute w-3 h-3 text-white opacity-0 peer-checked:opacity-100 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <span className="text-sm font-medium text-gray-600 group-hover:text-black transition-colors uppercase tracking-wider">{dsg}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
       </div>
 
@@ -259,7 +316,7 @@ const Collection = () => {
             <div className="col-span-full text-center py-32 border-2 border-dashed border-gray-200 bg-white/50">
               <p className="text-sm font-bold tracking-widest uppercase text-gray-400">Zero matches found for your filter.</p>
               <button 
-                onClick={() => {setCategory([]); setSubCategory([])}}
+                onClick={() => {setCategory([]); setSubCategory([]); setDesign([])}}
                 className="mt-4 text-xs font-bold text-brand-red underline uppercase tracking-widest"
               >
                 Reset Filters

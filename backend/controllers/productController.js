@@ -10,6 +10,7 @@ const addProduct = async (req, res) => {
       price,
       category,
       subCategory,
+      design,
       sizes,
       colour,
       bestseller,
@@ -68,6 +69,7 @@ const addProduct = async (req, res) => {
       category: safeCategory,
       price: Number(price),
       subCategory: subCategory || "",
+      design: design || "",
       sizes: parsedSizes,
       colour: colour || "",
       bestseller: bestseller === "true" || bestseller === true,
@@ -96,12 +98,13 @@ const addProduct = async (req, res) => {
 // LIST PRODUCTS
 const listProducts = async (req, res) => {
   try {
-    const { category, subCategory } = req.query;
+    const { category, subCategory, design } = req.query;
     let filter = {};
 
     // ✅ normalize filters too (future safe)
     if (category) filter.category = category.toLowerCase().trim();
     if (subCategory) filter.subCategory = subCategory;
+    if (design) filter.design = design;
 
     const products = await productModel.find(filter);
     res.json({ success: true, products });
@@ -238,6 +241,7 @@ const updateProduct = async (req, res) => {
       price,
       category,
       subCategory,
+      design,
       sizes,
       colour,
       bestseller,
@@ -337,6 +341,7 @@ const updateProduct = async (req, res) => {
     if (price !== undefined) product.price = Number(price);
     if (category !== undefined) product.category = safeCategory;
     if (subCategory !== undefined) product.subCategory = subCategory;
+    if (design !== undefined) product.design = design;
     if (sizes !== undefined) product.sizes = parsedSizes;
     if (colour !== undefined) product.colour = colour;
     if (bestseller !== undefined) {

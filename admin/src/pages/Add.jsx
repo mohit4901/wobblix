@@ -18,6 +18,7 @@ const Add = ({ token }) => {
   // ✅ MUST MATCH BACKEND ENUM
   const [category, setCategory] = useState("Men");
   const [subCategory, setSubCategory] = useState("Oversized T-Shirts");
+  const [design, setDesign] = useState("");
 
   const [sizes, setSizes] = useState([]);
   const [colour, setColour] = useState("");
@@ -84,6 +85,7 @@ const Add = ({ token }) => {
       formData.append("price", price);
       formData.append("category", category);
       formData.append("subCategory", subCategory);
+      formData.append("design", design);
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("colour", colour);
       formData.append("bestseller", bestseller);
@@ -117,6 +119,7 @@ const Add = ({ token }) => {
         setPrice("");
         setCategory("Men");
         setSubCategory("Oversized T-Shirts");
+        setDesign("");
         setSizes([]);
         setColour("");
         setBestseller(false);
@@ -265,7 +268,7 @@ const Add = ({ token }) => {
         />
       </div>
 
-      {/* ---------------- CATEGORY & SUBCATEGORY ---------------- */}
+      {/* ---------------- CATEGORY & SUBCATEGORY & DESIGN ---------------- */}
       <div className="flex gap-4">
         <select
           value={category}
@@ -286,6 +289,20 @@ const Add = ({ token }) => {
           <option value="Normal T-Shirts">Normal T-Shirts</option>
           <option value="Tank Tops">Tank Tops</option>
           <option value="Hoodies">Hoodies</option>
+        </select>
+
+        <select
+          value={design}
+          onChange={(e) => setDesign(e.target.value)}
+          className="px-3 py-2 border"
+        >
+          <option value="">Select Design (Optional)</option>
+          <option value="Anime">Anime</option>
+          <option value="Words">Words</option>
+          <option value="Artists">Artists</option>
+          <option value="Cars">Cars</option>
+          <option value="Winters">Winters</option>
+          <option value="Summers">Summers</option>
         </select>
       </div>
 
