@@ -4,11 +4,12 @@ import Title from './Title';
 
 const CartTotal = () => {
 
-    const {currency,delivery_fee,getCartAmount, discount} = useContext(ShopContext);
+    const {currency,delivery_fee,getCartAmount, discount, getB4G1Discount} = useContext(ShopContext);
 
     const subtotal = getCartAmount();
     const discountAmount = (subtotal * discount) / 100;
-    const total = subtotal > 0 ? (subtotal - discountAmount + delivery_fee) : 0;
+    const b4g1Discount = getB4G1Discount ? getB4G1Discount() : 0;
+    const total = subtotal > 0 ? (subtotal - discountAmount - b4g1Discount + delivery_fee) : 0;
 
   return (
     <div className='w-full'>
@@ -25,6 +26,12 @@ const CartTotal = () => {
                 <div className='flex justify-between items-center text-green-500'>
                     <p>Discount ({discount}%)</p>
                     <p>- {currency} {discountAmount}.00</p>
+                </div>
+            )}
+            {b4g1Discount > 0 && (
+                <div className='flex justify-between items-center text-green-400 font-bold'>
+                    <p>Buy 4 Get 1 Free Promo</p>
+                    <p>- {currency} {b4g1Discount}.00</p>
                 </div>
             )}
             <div className='flex justify-between items-center'>

@@ -39,13 +39,43 @@ const placeOrderRazorpay = async (req, res) => {
     const { userId, items, amount, address, couponCode } = req.body;
 
     // Verify coupon on server side to prevent tampering
-    let discount = 0;
+    let discountPercent = 0;
     if (couponCode === 'NEW10') {
         const previousOrders = await orderModel.find({ userId, payment: true });
         if (previousOrders.length === 0) {
-            discount = 0.1; // 10%
+            discountPercent = 10; // 10%
         }
     }
+
+    // Recalculate amount safely on the server to prevent tampering
+    let calculatedSubtotal = 0;
+    let eligiblePrices = [];
+    
+    for (const item of items) {
+      const product = await productModel.findById(item.productId);
+      if (product) {
+        calculatedSubtotal += product.price * item.quantity;
+        // B4G1 Promo: Tank Tops and Oversized T-Shirts only (NO HOODIES)
+        if (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts") {
+          for (let i = 0; i < item.quantity; i++) {
+            eligiblePrices.push(product.price);
+          }
+        }
+      }
+    }
+
+    eligiblePrices.sort((a, b) => a - b);
+    const freeCount = Math.floor(eligiblePrices.length / 4);
+    let b4g1Discount = 0;
+    for (let i = 0; i < freeCount; i++) {
+      b4g1Discount += eligiblePrices[i];
+    }
+
+    const calculatedDiscountAmount = (calculatedSubtotal * discountPercent) / 100;
+    
+    // Fallback to client delivery fee if india/global difference exists, standard is 100
+    const shippingFee = amount - (calculatedSubtotal - calculatedDiscountAmount - b4g1Discount) || 100;
+    const finalVerifiedAmount = Math.max(0, calculatedSubtotal - calculatedDiscountAmount - b4g1Discount + shippingFee);
 
     const formattedItems = formatItems(items);
 
@@ -53,7 +83,7 @@ const placeOrderRazorpay = async (req, res) => {
       userId,
       items: formattedItems,
       address,
-      amount,
+      amount: finalVerifiedAmount,
       paymentMethod: "Razorpay",
       payment: false,
       date: Date.now(),
@@ -62,7 +92,7 @@ const placeOrderRazorpay = async (req, res) => {
     await newOrder.save();
 
     const options = {
-      amount: amount * 100,
+      amount: Math.round(finalVerifiedAmount * 100),
       currency: currency.toUpperCase(),
       receipt: newOrder._id.toString(),
       notes: { orderId: newOrder._id.toString() }

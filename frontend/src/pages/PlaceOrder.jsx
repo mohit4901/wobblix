@@ -11,7 +11,7 @@ const PlaceOrder = () => {
     const [method, setMethod] = useState('razorpay');
     const [loading, setLoading] = useState(false);
     const [couponInput, setCouponInput] = useState("");
-    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, discount, applyCoupon, couponCode } = useContext(ShopContext);
+    const { navigate, backendUrl, token, cartItems, setCartItems, getCartAmount, delivery_fee, products, discount, applyCoupon, couponCode, getB4G1Discount } = useContext(ShopContext);
 
 
     const [formData, setFormData] = useState({
@@ -105,7 +105,8 @@ const PlaceOrder = () => {
 
             const subtotal = getCartAmount();
             const discountAmount = (subtotal * discount) / 100;
-            const finalAmount = subtotal - discountAmount + delivery_fee;
+            const b4g1Discount = getB4G1Discount ? getB4G1Discount() : 0;
+            const finalAmount = subtotal - discountAmount - b4g1Discount + delivery_fee;
 
             let orderData = {
                 address: formData,

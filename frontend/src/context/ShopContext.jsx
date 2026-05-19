@@ -201,6 +201,36 @@ const ShopContextProvider = (props) => {
     return total;
   };
 
+  // BUY 4 GET 1 FREE (Applicable ONLY on Tank Tops and Oversized T-Shirts)
+  const getB4G1Discount = () => {
+    let eligibleItems = [];
+    for (const id in cartItems) {
+      const product = products.find(p => p._id === id);
+      if (!product) continue;
+
+      // Tank Tops or Oversized T-Shirts only
+      if (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts") {
+        for (const s in cartItems[id]) {
+          const item = cartItems[id][s];
+          const qty = typeof item === "number" ? item : item.quantity;
+          for (let i = 0; i < qty; i++) {
+            eligibleItems.push(product.price);
+          }
+        }
+      }
+    }
+
+    // Sort ascending to make the cheapest items free
+    eligibleItems.sort((a, b) => a - b);
+
+    const freeCount = Math.floor(eligibleItems.length / 4);
+    let discountAmount = 0;
+    for (let i = 0; i < freeCount; i++) {
+      discountAmount += eligibleItems[i];
+    }
+    return discountAmount;
+  };
+
   // USER DATA
 
   const getUserCart = async (token) => {
@@ -303,7 +333,8 @@ const ShopContextProvider = (props) => {
     setCouponCode,
     discount,
     setDiscount,
-    applyCoupon
+    applyCoupon,
+    getB4G1Discount
   };
 
   return (
