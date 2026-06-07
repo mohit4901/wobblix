@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+a.active hr{
+    display: block;
+}
+
+*{
+    font-family: 'Inter', sans-serif;
+}
+
+body {
+    background-color: #edece8;
+}
+
+.font-street {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.font-tech {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+}
+
+.prata-regular {
+    font-family: 'Outfit', sans-serif;
+}
+
+  ::-webkit-scrollbar{
+    display: none;
+  }
+  
+  @media (max-width:640px) {
+    a.active{
+        background-color: black;
+        color: white;
+    }
+  }
+
+  
+  @keyframes infinite-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  .infinite-scroll {
+    display: flex;
+    width: max-content;
+    animation: infinite-scroll 35s linear infinite;
+  }
+  
+  .infinite-scroll:hover {
+    animation-play-state: paused;
+  }
+  
+  .input {
+    @apply border border-gray-300 rounded px-3 py-2 w-full;
+  }
+
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 18s linear infinite;
+}

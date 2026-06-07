@@ -1,0 +1,53 @@
+import React, { useContext } from 'react'
+import { ShopContext } from '../context/ShopContext'
+import Title from './Title';
+
+const CartTotal = () => {
+
+    const {currency,delivery_fee,getCartAmount, discount, getB4G1Discount, getCouponDiscount} = useContext(ShopContext);
+
+    const subtotal = getCartAmount();
+    const discountAmount = getCouponDiscount ? getCouponDiscount() : 0;
+    const b4g1Discount = getB4G1Discount ? getB4G1Discount() : 0;
+    const total = subtotal > 0 ? (subtotal - discountAmount - b4g1Discount + delivery_fee) : 0;
+
+  return (
+    <div className='w-full'>
+      <div className='mb-8 pb-4 border-b border-gray-800'>
+         <h2 className="text-xl font-black uppercase tracking-widest text-white">Summary</h2>
+      </div>
+
+      <div className='flex flex-col gap-4 text-xs font-bold uppercase tracking-widest'>
+            <div className='flex justify-between items-center'>
+                <p className="text-gray-400">Subtotal</p>
+                <p>{currency} {subtotal}.00</p>
+            </div>
+            {discount > 0 && (
+                <div className='flex justify-between items-center text-green-500'>
+                    <p>Discount ({discount}%)</p>
+                    <p>- {currency} {discountAmount}.00</p>
+                </div>
+            )}
+            {b4g1Discount > 0 && (
+                <div className='flex justify-between items-center text-green-400 font-bold'>
+                    <p>Buy 4 Get 5th Free Promo</p>
+                    <p>- {currency} {b4g1Discount}.00</p>
+                </div>
+            )}
+            <div className='flex justify-between items-center'>
+                <p className="text-gray-400">Shipping Fee</p>
+                <p>{currency} {delivery_fee}.00</p>
+            </div>
+            <div className='pt-6 mt-2 border-t border-gray-800 flex justify-between items-center text-lg'>
+                <p className="text-white font-black">Total</p>
+                <p className="text-white font-black">
+                   {currency} {total}.00
+                </p>
+            </div>
+      </div>
+    </div>
+  )
+}
+
+export default CartTotal
+
