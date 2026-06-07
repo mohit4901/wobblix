@@ -11,6 +11,7 @@ import SearchBar from './components/SearchBar'
 import PageWrapper from './components/PageWrapper'
 import SEO from './components/SEO'
 import LoadingSpinner from './components/LoadingSpinner'
+import ScrollToTop from './components/ScrollToTop'
 
 // Lazy loaded pages
 const Home = lazy(() => import('./pages/Home'))
@@ -38,6 +39,7 @@ const App = () => {
       <SEO />
 
       <ToastContainer />
+      <ScrollToTop />
 
       <Navbar />
 

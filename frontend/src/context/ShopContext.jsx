@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { products as localProducts } from "../assets/assets";
+import CartToast from "../components/CartToast";
 
 export const ShopContext = createContext();
 
@@ -127,6 +128,19 @@ const ShopContextProvider = (props) => {
     }
 
     setCartItems(cartData);
+
+    toast.success(
+      <CartToast product={product} size={finalSize} navigate={navigate} />,
+      {
+        position: "bottom-right",
+        autoClose: 3500,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        icon: false
+      }
+    );
 
     if (token) {
       await axios.post(
