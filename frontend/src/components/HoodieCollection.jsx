@@ -17,16 +17,16 @@ const HoodieCollection = () => {
   if (hoodies.length === 0) return null;
 
   return (
-    <div className="w-full py-20 px-4 sm:px-10 lg:px-16 bg-black text-white border-t border-gray-900">
+    <div className="w-full py-20 px-4 sm:px-10 lg:px-16 bg-white text-black border-t border-gray-200">
       <div className="text-center mb-14">
         <div className="flex justify-center items-center gap-4">
-          <span className="h-[2px] w-12 bg-white hidden sm:block"></span>
-          <h2 className="text-3xl font-black tracking-widest uppercase text-white font-street">
-            HOODIE <span className="text-gray-400">SEASON</span>
+          <span className="h-[2px] w-12 bg-black hidden sm:block"></span>
+          <h2 className="text-3xl font-black tracking-widest uppercase text-black font-street">
+            HOODIE <span className="text-gray-500">SEASON</span>
           </h2>
-          <span className="h-[2px] w-12 bg-white hidden sm:block"></span>
+          <span className="h-[2px] w-12 bg-black hidden sm:block"></span>
         </div>
-        <p className="w-3/4 m-auto text-xs text-gray-400 font-black tracking-widest mt-4 uppercase">
+        <p className="w-3/4 m-auto text-xs text-gray-500 font-black tracking-widest mt-4 uppercase">
           HEAVYWEIGHT PREMIUM STREETWEAR HOODIES TO KEEP YOU WARM IN STYLE.
         </p>
       </div>

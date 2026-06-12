@@ -4,6 +4,7 @@ import LatestCollection from '../components/LatestCollection'
 import B4G1PromoSection from '../components/B4G1PromoSection'
 import OversizedCollection from '../components/OversizedCollection'
 import HoodieCollection from '../components/HoodieCollection'
+import TrousersCollection from '../components/TrousersCollection'
 
 import AboutSection from '../components/AboutSection'
 import ContactPreview from '../components/ContactPreview'
@@ -31,6 +32,9 @@ const Home = () => {
 
       {/* Hoodie Season */}
       <HoodieCollection />
+
+      {/* Trouser Drops */}
+      <TrousersCollection />
 
       {/* About Us */}
       <AboutSection />
