@@ -2,9 +2,33 @@
 <html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo1.png" />
+    <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wobblix Clothing | Premium Gen-Z Streetwear & Oversized T-Shirts</title>
+    
+    <!-- Tab Title Animation on Switch -->
+    <script>
+      (function() {
+        const originalTitle = "Wobblix Clothing | Premium Gen-Z Streetwear & Oversized T-Shirts";
+        let animatedTitleInterval;
+        const messages = ["Come back! 😢", "We miss you! ❤️", "New drops waiting! 🔥"];
+        let msgIndex = 0;
+
+        document.addEventListener("visibilitychange", function() {
+          if (document.visibilityState === "hidden") {
+            msgIndex = 0;
+            document.title = messages[msgIndex];
+            animatedTitleInterval = setInterval(function() {
+              msgIndex = (msgIndex + 1) % messages.length;
+              document.title = messages[msgIndex];
+            }, 1800);
+          } else {
+            clearInterval(animatedTitleInterval);
+            document.title = originalTitle;
+          }
+        });
+      })();
+    </script>
     
     <!-- PERFORMANCE BOOST -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
