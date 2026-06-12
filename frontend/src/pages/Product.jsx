@@ -19,6 +19,9 @@ const Product = () => {
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
 
+  const isHoodie = productData && (Array.isArray(productData.subCategory) ? productData.subCategory.includes("Hoodies") : productData.subCategory === "Hoodies");
+  const originalPrice = isHoodie ? 2499 : 999;
+
   const fetchProductData = () => {
     const product = products.find(item => item._id === productId);
     if (product) {
@@ -150,13 +153,13 @@ const Product = () => {
                 <p className='text-5xl font-black tracking-tighter text-black'>
                   {currency}{productData.price}
                 </p>
-                {((productData.subCategory === "Hoodies" ? 2499 : 999) > productData.price) && (
+                {(originalPrice > productData.price) && (
                   <div className="flex items-center gap-2">
                     <span className="text-xl line-through text-gray-400 font-bold">
-                      {currency}{productData.subCategory === "Hoodies" ? 2499 : 999}
+                      {currency}{originalPrice}
                     </span>
                     <span className="text-xs font-black text-green-600 bg-green-50 px-2 py-1">
-                      {Math.round((((productData.subCategory === "Hoodies" ? 2499 : 999) - productData.price) / (productData.subCategory === "Hoodies" ? 2499 : 999)) * 100)}% OFF
+                      {Math.round((((originalPrice - productData.price) / originalPrice) * 100))}% OFF
                     </span>
                   </div>
                 )}

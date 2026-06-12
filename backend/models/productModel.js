@@ -18,15 +18,16 @@ const productSchema = new mongoose.Schema({
   },
 
   subCategory: {
-    type: String,
+    type: [String],
     index: true,
     enum: [
       "Oversized T-Shirts",
       "Normal T-Shirts",
       "Tank Tops",
-      "Hoodies"
+      "Hoodies",
+      "Trousers"
     ],
-    default: ""
+    default: []
   },
 
   design: {

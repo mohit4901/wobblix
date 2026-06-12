@@ -8,7 +8,7 @@ const HoodieCollection = () => {
 
   useEffect(() => {
     // Filter for Hoodies
-    const filtered = products.filter(item => item.subCategory === "Hoodies")
+    const filtered = products.filter(item => Array.isArray(item.subCategory) ? item.subCategory.includes("Hoodies") : item.subCategory === "Hoodies")
     // Sort by date descending
     filtered.sort((a, b) => b.date - a.date)
     setHoodies(filtered.slice(0, 5))

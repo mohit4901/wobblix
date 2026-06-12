@@ -89,9 +89,12 @@ const Collection = () => {
     }
 
     if (subCategory.length > 0) {
-      result = result.filter(item =>
-        subCategory.includes(item.subCategory)
-      )
+      result = result.filter(item => {
+        if (Array.isArray(item.subCategory)) {
+          return item.subCategory.some(sub => subCategory.includes(sub));
+        }
+        return subCategory.includes(item.subCategory);
+      });
     }
 
     if (design.length > 0) {
@@ -158,7 +161,7 @@ const Collection = () => {
             <div className="space-y-4">
               <h3 className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">Collection Type</h3>
               <div className="flex flex-wrap gap-3">
-                {['Oversized T-Shirts', 'Normal T-Shirts', 'Tank Tops', 'Hoodies'].map(sub => (
+                {['Oversized T-Shirts', 'Normal T-Shirts', 'Tank Tops', 'Hoodies', 'Trousers'].map(sub => (
                   <button 
                     key={sub}
                     onClick={() => toggleSubCategory({target: {value: sub}})}
@@ -227,7 +230,7 @@ const Collection = () => {
           <div className="bg-white border border-gray-200 p-6 shadow-sm">
             <h3 className="mb-5 text-xs font-bold tracking-[0.2em] text-black uppercase border-b border-gray-100 pb-3">Collection Type</h3>
             <div className="flex flex-col gap-3">
-              {['Oversized T-Shirts', 'Normal T-Shirts', 'Tank Tops', 'Hoodies'].map(sub => (
+              {['Oversized T-Shirts', 'Normal T-Shirts', 'Tank Tops', 'Hoodies', 'Trousers'].map(sub => (
                 <label key={sub} className="flex items-center gap-3 cursor-pointer group">
                   <div className="relative flex items-center justify-center">
                     <input

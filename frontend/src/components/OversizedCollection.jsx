@@ -9,7 +9,7 @@ const OversizedCollection = () => {
 
   useEffect(() => {
     // Filter for Oversized T-Shirts
-    const filtered = products.filter(item => item.subCategory === "Oversized T-Shirts")
+    const filtered = products.filter(item => Array.isArray(item.subCategory) ? item.subCategory.includes("Oversized T-Shirts") : item.subCategory === "Oversized T-Shirts")
     // Sort by date descending
     filtered.sort((a, b) => b.date - a.date)
     setOversized(filtered.slice(0, 5))

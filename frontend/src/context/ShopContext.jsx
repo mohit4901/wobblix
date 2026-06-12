@@ -224,7 +224,10 @@ const ShopContextProvider = (props) => {
       if (!product) continue;
 
       // Tank Tops or Oversized T-Shirts only
-      if (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts") {
+      const isEligibleB4G1 = Array.isArray(product.subCategory)
+        ? (product.subCategory.includes("Tank Tops") || product.subCategory.includes("Oversized T-Shirts"))
+        : (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts");
+      if (isEligibleB4G1) {
         for (const s in cartItems[id]) {
           const item = cartItems[id][s];
           const qty = typeof item === "number" ? item : item.quantity;
@@ -311,9 +314,14 @@ const ShopContextProvider = (props) => {
       const product = products.find(p => p._id === id);
       if (!product) continue;
 
-      if (product.subCategory === "Oversized T-Shirts" || 
-          product.subCategory === "Normal T-Shirts" || 
-          product.subCategory === "Tank Tops") {
+      const isEligibleCoupon = Array.isArray(product.subCategory)
+        ? (product.subCategory.includes("Oversized T-Shirts") || 
+           product.subCategory.includes("Normal T-Shirts") || 
+           product.subCategory.includes("Tank Tops"))
+        : (product.subCategory === "Oversized T-Shirts" || 
+           product.subCategory === "Normal T-Shirts" || 
+           product.subCategory === "Tank Tops");
+      if (isEligibleCoupon) {
         for (const s in cartItems[id]) {
           const item = cartItems[id][s];
           const qty = typeof item === "number" ? item : item.quantity;

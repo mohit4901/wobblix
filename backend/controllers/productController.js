@@ -57,6 +57,19 @@ const addProduct = async (req, res) => {
       }
     }
 
+    //  SAFE SUBCATEGORY PARSE
+    let parsedSubCategory = [];
+    if (subCategory) {
+      try {
+        parsedSubCategory = JSON.parse(subCategory);
+        if (!Array.isArray(parsedSubCategory)) {
+          parsedSubCategory = [parsedSubCategory];
+        }
+      } catch {
+        parsedSubCategory = [subCategory];
+      }
+    }
+
     // CATEGORY NORMALIZATION (MAIN FIX)
     const safeCategory = category
       ?.toLowerCase()
@@ -68,7 +81,7 @@ const addProduct = async (req, res) => {
       description,
       category: safeCategory,
       price: Number(price),
-      subCategory: subCategory || "",
+      subCategory: parsedSubCategory,
       design: design || "",
       sizes: parsedSizes,
       colour: colour || "",
@@ -103,7 +116,13 @@ const listProducts = async (req, res) => {
 
     // ✅ normalize filters too (future safe)
     if (category) filter.category = category.toLowerCase().trim();
-    if (subCategory) filter.subCategory = subCategory;
+    if (subCategory) {
+      if (subCategory.includes(',')) {
+        filter.subCategory = { $in: subCategory.split(',') };
+      } else {
+        filter.subCategory = subCategory;
+      }
+    }
     if (design) filter.design = design;
 
     const products = await productModel.find(filter).sort({ date: -1 });
@@ -326,6 +345,21 @@ const updateProduct = async (req, res) => {
       parsedSizes = product.sizes;
     }
 
+    // SAFE SUBCATEGORY PARSE
+    let parsedSubCategory = [];
+    if (subCategory) {
+      try {
+        parsedSubCategory = JSON.parse(subCategory);
+        if (!Array.isArray(parsedSubCategory)) {
+          parsedSubCategory = [parsedSubCategory];
+        }
+      } catch {
+        parsedSubCategory = [subCategory];
+      }
+    } else {
+      parsedSubCategory = product.subCategory;
+    }
+
     // CATEGORY NORMALIZATION
     let safeCategory = product.category;
     if (category) {
@@ -340,7 +374,7 @@ const updateProduct = async (req, res) => {
     if (description !== undefined) product.description = description;
     if (price !== undefined) product.price = Number(price);
     if (category !== undefined) product.category = safeCategory;
-    if (subCategory !== undefined) product.subCategory = subCategory;
+    if (subCategory !== undefined) product.subCategory = parsedSubCategory;
     if (design !== undefined) product.design = design;
     if (sizes !== undefined) product.sizes = parsedSizes;
     if (colour !== undefined) product.colour = colour;

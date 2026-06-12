@@ -77,7 +77,7 @@ const List = ({ token }) => {
 
               {item.subCategory && (
                 <p className='text-gray-500'>
-                  {item.subCategory}
+                  {Array.isArray(item.subCategory) ? item.subCategory.join(", ") : item.subCategory}
                 </p>
               )}
 

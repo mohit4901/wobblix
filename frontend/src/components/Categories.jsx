@@ -11,7 +11,8 @@ const Categories = () => {
     { img: assets.a1, label: "OVERSIZED", value: "Oversized T-Shirts" },
     { img: assets.a2, label: "T-SHIRTS", value: "Normal T-Shirts" },
     { img: assets.a3, label: "TANK TOPS", value: "Tank Tops" },
-    { img: assets.a4, label: "HOODIES", value: "Hoodies" }
+    { img: assets.a4, label: "HOODIES", value: "Hoodies" },
+    { img: assets.cat_joggers, label: "TROUSERS", value: "Trousers" }
   ]
 
   const handleClick = (subCategory) => {
@@ -26,7 +27,7 @@ const Categories = () => {
       </div>
 
       <div className="
-        mt-12 grid grid-cols-2 md:grid-cols-4
+        mt-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5
         gap-4 sm:gap-8 place-items-center max-w-[1400px] mx-auto
       ">
         {fabrics.map(item => (

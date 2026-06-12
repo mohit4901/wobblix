@@ -53,6 +53,8 @@ const Cart = () => {
             cartData.map((item, index) => {
               const productData = products.find((product) => product._id === item._id)
               if (!productData) return null
+              const isHoodie = Array.isArray(productData.subCategory) ? productData.subCategory.includes("Hoodies") : productData.subCategory === "Hoodies";
+              const originalPrice = isHoodie ? 2499 : 999;
               return (
                 <div key={index} className="bg-white p-6 shadow-sm flex flex-col sm:flex-row gap-8 relative group">
                   
@@ -60,7 +62,7 @@ const Cart = () => {
                   <div className="w-full sm:w-32 aspect-square bg-[#f5f5f5] flex-shrink-0">
                     <img className="w-full h-full object-cover" src={optimizeCloudinaryUrl(productData.image[0], 200)} alt="" />
                   </div>
-
+ 
                   {/* DETAILS */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div>
@@ -68,13 +70,13 @@ const Cart = () => {
                         <h3 className="font-black text-lg uppercase tracking-tight text-black">{productData.name}</h3>
                         <div className="flex flex-col items-end">
                           <p className="font-black text-lg">{currency}{productData.price}</p>
-                          {((productData.subCategory === "Hoodies" ? 2499 : 999) > productData.price) && (
+                          {(originalPrice > productData.price) && (
                             <div className="flex items-center gap-1 mt-0.5">
                               <span className="text-[10px] line-through text-gray-400 font-bold">
-                                {currency}{productData.subCategory === "Hoodies" ? 2499 : 999}
+                                {currency}{originalPrice}
                               </span>
                               <span className="text-[9px] font-black text-green-600 bg-green-50 px-1">
-                                {Math.round((((productData.subCategory === "Hoodies" ? 2499 : 999) - productData.price) / (productData.subCategory === "Hoodies" ? 2499 : 999)) * 100)}% OFF
+                                {Math.round((((originalPrice - productData.price) / originalPrice) * 100))}% OFF
                               </span>
                             </div>
                           )}
