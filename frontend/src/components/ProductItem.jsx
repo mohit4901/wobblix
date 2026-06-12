@@ -6,8 +6,7 @@ import { optimizeCloudinaryUrl } from '../utils/imageOptimizer'
 const ProductItem = ({ id, image, name, price, badge, subCategory }) => {
   const { currency } = useContext(ShopContext)
 
-  const isHoodie = Array.isArray(subCategory) ? subCategory.includes("Hoodies") : subCategory === "Hoodies";
-  const originalPrice = isHoodie ? 2499 : 999;
+  const originalPrice = subCategory === "Hoodies" ? 2499 : 999;
   const discountPercent = originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
   return (

@@ -18,7 +18,7 @@ const productSchema = new mongoose.Schema({
   },
 
   subCategory: {
-    type: [String],
+    type: String,
     index: true,
     enum: [
       "Oversized T-Shirts",
@@ -27,11 +27,11 @@ const productSchema = new mongoose.Schema({
       "Hoodies",
       "Trousers"
     ],
-    default: []
+    default: ""
   },
 
   design: {
-    type: String,
+    type: [String],
     index: true,
     enum: [
       "Anime",
@@ -39,10 +39,9 @@ const productSchema = new mongoose.Schema({
       "Artists",
       "Cars",
       "Winters",
-      "Summers",
-      ""
+      "Summers"
     ],
-    default: ""
+    default: []
   },
 
   sizes: {

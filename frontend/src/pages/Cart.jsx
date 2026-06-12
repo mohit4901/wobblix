@@ -53,8 +53,7 @@ const Cart = () => {
             cartData.map((item, index) => {
               const productData = products.find((product) => product._id === item._id)
               if (!productData) return null
-              const isHoodie = Array.isArray(productData.subCategory) ? productData.subCategory.includes("Hoodies") : productData.subCategory === "Hoodies";
-              const originalPrice = isHoodie ? 2499 : 999;
+              const originalPrice = productData.subCategory === "Hoodies" ? 2499 : 999;
               return (
                 <div key={index} className="bg-white p-6 shadow-sm flex flex-col sm:flex-row gap-8 relative group">
                   

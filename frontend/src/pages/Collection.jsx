@@ -89,18 +89,18 @@ const Collection = () => {
     }
 
     if (subCategory.length > 0) {
-      result = result.filter(item => {
-        if (Array.isArray(item.subCategory)) {
-          return item.subCategory.some(sub => subCategory.includes(sub));
-        }
-        return subCategory.includes(item.subCategory);
-      });
+      result = result.filter(item =>
+        subCategory.includes(item.subCategory)
+      )
     }
 
     if (design.length > 0) {
-      result = result.filter(item =>
-        item.design && design.includes(item.design)
-      )
+      result = result.filter(item => {
+        if (Array.isArray(item.design)) {
+          return item.design.some(d => design.includes(d));
+        }
+        return item.design && design.includes(item.design);
+      });
     }
     
     if (bestsellerOnly) {

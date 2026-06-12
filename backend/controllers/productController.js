@@ -57,16 +57,16 @@ const addProduct = async (req, res) => {
       }
     }
 
-    //  SAFE SUBCATEGORY PARSE
-    let parsedSubCategory = [];
-    if (subCategory) {
+    //  SAFE DESIGN PARSE
+    let parsedDesign = [];
+    if (design) {
       try {
-        parsedSubCategory = JSON.parse(subCategory);
-        if (!Array.isArray(parsedSubCategory)) {
-          parsedSubCategory = [parsedSubCategory];
+        parsedDesign = JSON.parse(design);
+        if (!Array.isArray(parsedDesign)) {
+          parsedDesign = [parsedDesign];
         }
       } catch {
-        parsedSubCategory = [subCategory];
+        parsedDesign = [design];
       }
     }
 
@@ -81,8 +81,8 @@ const addProduct = async (req, res) => {
       description,
       category: safeCategory,
       price: Number(price),
-      subCategory: parsedSubCategory,
-      design: design || "",
+      subCategory: subCategory || "",
+      design: parsedDesign,
       sizes: parsedSizes,
       colour: colour || "",
       bestseller: bestseller === "true" || bestseller === true,
@@ -116,14 +116,14 @@ const listProducts = async (req, res) => {
 
     // ✅ normalize filters too (future safe)
     if (category) filter.category = category.toLowerCase().trim();
-    if (subCategory) {
-      if (subCategory.includes(',')) {
-        filter.subCategory = { $in: subCategory.split(',') };
+    if (subCategory) filter.subCategory = subCategory;
+    if (design) {
+      if (design.includes(',')) {
+        filter.design = { $in: design.split(',') };
       } else {
-        filter.subCategory = subCategory;
+        filter.design = design;
       }
     }
-    if (design) filter.design = design;
 
     const products = await productModel.find(filter).sort({ date: -1 });
     res.json({ success: true, products });
@@ -345,19 +345,19 @@ const updateProduct = async (req, res) => {
       parsedSizes = product.sizes;
     }
 
-    // SAFE SUBCATEGORY PARSE
-    let parsedSubCategory = [];
-    if (subCategory) {
+    // SAFE DESIGN PARSE
+    let parsedDesign = [];
+    if (design) {
       try {
-        parsedSubCategory = JSON.parse(subCategory);
-        if (!Array.isArray(parsedSubCategory)) {
-          parsedSubCategory = [parsedSubCategory];
+        parsedDesign = JSON.parse(design);
+        if (!Array.isArray(parsedDesign)) {
+          parsedDesign = [parsedDesign];
         }
       } catch {
-        parsedSubCategory = [subCategory];
+        parsedDesign = [design];
       }
     } else {
-      parsedSubCategory = product.subCategory;
+      parsedDesign = product.design || [];
     }
 
     // CATEGORY NORMALIZATION
@@ -374,8 +374,8 @@ const updateProduct = async (req, res) => {
     if (description !== undefined) product.description = description;
     if (price !== undefined) product.price = Number(price);
     if (category !== undefined) product.category = safeCategory;
-    if (subCategory !== undefined) product.subCategory = parsedSubCategory;
-    if (design !== undefined) product.design = design;
+    if (subCategory !== undefined) product.subCategory = subCategory;
+    if (design !== undefined) product.design = parsedDesign;
     if (sizes !== undefined) product.sizes = parsedSizes;
     if (colour !== undefined) product.colour = colour;
     if (bestseller !== undefined) {

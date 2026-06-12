@@ -21,8 +21,8 @@ const Edit = ({ token }) => {
   const [price, setPrice] = useState("");
 
   const [category, setCategory] = useState("Men");
-  const [subCategory, setSubCategory] = useState([]);
-  const [design, setDesign] = useState("");
+  const [subCategory, setSubCategory] = useState("Oversized T-Shirts");
+  const [design, setDesign] = useState([]);
 
   const [sizes, setSizes] = useState([]);
   const [colour, setColour] = useState("");
@@ -47,12 +47,17 @@ const Edit = ({ token }) => {
           setDescription(product.description || "");
           setPrice(product.price ? String(product.price) : "");
           setCategory(product.category || "Men");
-          let subCat = product.subCategory || [];
-          if (!Array.isArray(subCat)) {
-            subCat = [subCat];
+          setSubCategory(product.subCategory || "Oversized T-Shirts");
+          let dsgVal = product.design || [];
+          if (typeof dsgVal === "string") {
+            try {
+              const parsed = JSON.parse(dsgVal);
+              dsgVal = Array.isArray(parsed) ? parsed : [dsgVal];
+            } catch {
+              dsgVal = [dsgVal];
+            }
           }
-          setSubCategory(subCat);
-          setDesign(product.design || "");
+          setDesign(dsgVal);
           setSizes(product.sizes || []);
           setColour(product.colour || "");
           setBestseller(product.bestseller || false);
@@ -143,8 +148,8 @@ const Edit = ({ token }) => {
       return;
     }
 
-    if (subCategory.length === 0) {
-      toast.error("Please select at least one subcategory");
+    if (design.length === 0) {
+      toast.error("Please select at least one design tag");
       return;
     }
 
@@ -158,8 +163,8 @@ const Edit = ({ token }) => {
       formData.append("description", description);
       formData.append("price", price);
       formData.append("category", category);
-      formData.append("subCategory", JSON.stringify(subCategory));
-      formData.append("design", design);
+      formData.append("subCategory", subCategory);
+      formData.append("design", JSON.stringify(design));
       formData.append("sizes", JSON.stringify(sizes));
       formData.append("colour", colour);
       formData.append("bestseller", bestseller);
@@ -382,6 +387,7 @@ const Edit = ({ token }) => {
       </div>
 
       {/* ---------------- CATEGORY & DESIGN ---------------- */}
+      {/* ---------------- CATEGORY & SUBCATEGORY ---------------- */}
       <div className="flex gap-4 flex-wrap">
         <div className="flex flex-col gap-1">
           <p className="text-sm font-medium">Category</p>
@@ -397,44 +403,42 @@ const Edit = ({ token }) => {
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium">Design Tag</p>
+          <p className="text-sm font-medium">Sub Category</p>
           <select
-            value={design}
-            onChange={(e) => setDesign(e.target.value)}
+            value={subCategory}
+            onChange={(e) => setSubCategory(e.target.value)}
             className="px-3 py-2 border focus:outline-black w-48"
           >
-            <option value="">Select Design (Optional)</option>
-            <option value="Anime">Anime</option>
-            <option value="Words">Words</option>
-            <option value="Artists">Artists</option>
-            <option value="Cars">Cars</option>
-            <option value="Winters">Winters</option>
-            <option value="Summers">Summers</option>
+            <option value="Oversized T-Shirts">Oversized T-Shirts</option>
+            <option value="Normal T-Shirts">Normal T-Shirts</option>
+            <option value="Tank Tops">Tank Tops</option>
+            <option value="Hoodies">Hoodies</option>
+            <option value="Trousers">Trousers</option>
           </select>
         </div>
       </div>
 
-      {/* ---------------- SUBCATEGORY (MULTI-SELECT PILLS) ---------------- */}
+      {/* ---------------- DESIGN (MULTI-SELECT PILLS) ---------------- */}
       <div className="flex flex-col gap-1">
-        <p className="text-sm font-medium">Sub Categories</p>
+        <p className="text-sm font-medium">Design Tags</p>
         <div className="flex gap-3 flex-wrap">
-          {["Oversized T-Shirts", "Normal T-Shirts", "Tank Tops", "Hoodies", "Trousers"].map((sub) => (
+          {["Anime", "Words", "Artists", "Cars", "Winters", "Summers"].map((d) => (
             <p
-              key={sub}
+              key={d}
               onClick={() =>
-                setSubCategory((prev) =>
-                  prev.includes(sub)
-                    ? prev.filter((i) => i !== sub)
-                    : [...prev, sub]
+                setDesign((prev) =>
+                  prev.includes(d)
+                    ? prev.filter((i) => i !== d)
+                    : [...prev, d]
                 )
               }
               className={`px-4 py-2 cursor-pointer font-medium select-none border transition-all ${
-                subCategory.includes(sub)
+                design.includes(d)
                   ? "bg-black text-white border-black"
                   : "bg-slate-100 hover:bg-slate-200 border-transparent text-gray-800"
               }`}
             >
-              {sub}
+              {d}
             </p>
           ))}
         </div>

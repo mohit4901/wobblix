@@ -19,8 +19,7 @@ const Product = () => {
   const [image, setImage] = useState('');
   const [size, setSize] = useState('');
 
-  const isHoodie = productData && (Array.isArray(productData.subCategory) ? productData.subCategory.includes("Hoodies") : productData.subCategory === "Hoodies");
-  const originalPrice = isHoodie ? 2499 : 999;
+  const originalPrice = productData && productData.subCategory === "Hoodies" ? 2499 : 999;
 
   const fetchProductData = () => {
     const product = products.find(item => item._id === productId);

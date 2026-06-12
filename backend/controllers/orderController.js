@@ -47,10 +47,7 @@ const placeOrderRazorpay = async (req, res) => {
       if (product) {
         calculatedSubtotal += product.price * item.quantity;
         // B4G1 Promo: Tank Tops and Oversized T-Shirts only (NO HOODIES)
-        const isEligibleB4G1 = Array.isArray(product.subCategory)
-          ? (product.subCategory.includes("Tank Tops") || product.subCategory.includes("Oversized T-Shirts"))
-          : (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts");
-        if (isEligibleB4G1) {
+        if (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts") {
           for (let i = 0; i < item.quantity; i++) {
             eligiblePrices.push(product.price);
           }
@@ -74,14 +71,9 @@ const placeOrderRazorpay = async (req, res) => {
             for (const item of items) {
               const product = await productModel.findById(item.productId);
               if (product) {
-                const isEligibleCoupon = Array.isArray(product.subCategory)
-                  ? (product.subCategory.includes("Oversized T-Shirts") || 
-                     product.subCategory.includes("Normal T-Shirts") || 
-                     product.subCategory.includes("Tank Tops"))
-                  : (product.subCategory === "Oversized T-Shirts" || 
-                     product.subCategory === "Normal T-Shirts" || 
-                     product.subCategory === "Tank Tops");
-                if (isEligibleCoupon) {
+                if (product.subCategory === "Oversized T-Shirts" || 
+                    product.subCategory === "Normal T-Shirts" || 
+                    product.subCategory === "Tank Tops") {
                   for (let i = 0; i < item.quantity; i++) {
                     tshirtPrices.push(product.price);
                   }
