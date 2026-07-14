@@ -11,7 +11,7 @@ const AnnouncementBar = () => {
             <span className="text-brand-red">•</span>
             <span>🚛 FREE SHIPPING ON ALL ORDERS ABOVE ₹2000 // SHIP WORLDWIDE</span>
             <span className="text-brand-red">•</span>
-            <span>🔥 BUY 4 GET 5TH FREE! APPLICABLE ON ALL TANK TOPS & OVERSIZED T-SHIRTS</span>
+            <span>🔥 BUY 4 GET 5TH FREE! APPLICABLE ON ALL PRODUCTS</span>
             <span className="text-brand-red">•</span>
           </div>
           {/* Second set (duplicate for seamless loop) */}
@@ -20,7 +20,7 @@ const AnnouncementBar = () => {
             <span className="text-brand-red">•</span>
             <span>🚛 FREE SHIPPING ON ALL ORDERS ABOVE ₹2000 // SHIP WORLDWIDE</span>
             <span className="text-brand-red">•</span>
-            <span>🔥 BUY 4 GET 5TH FREE! APPLICABLE ON ALL TANK TOPS & OVERSIZED T-SHIRTS</span>
+            <span>🔥 BUY 4 GET 5TH FREE! APPLICABLE ON ALL PRODUCTS</span>
             <span className="text-brand-red">•</span>
           </div>
         </div>

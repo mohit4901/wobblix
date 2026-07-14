@@ -46,11 +46,8 @@ const placeOrderRazorpay = async (req, res) => {
       const product = await productModel.findById(item.productId);
       if (product) {
         calculatedSubtotal += product.price * item.quantity;
-        // B4G1 Promo: Tank Tops and Oversized T-Shirts only (NO HOODIES)
-        if (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts") {
-          for (let i = 0; i < item.quantity; i++) {
-            eligiblePrices.push(product.price);
-          }
+        for (let i = 0; i < item.quantity; i++) {
+          eligiblePrices.push(product.price);
         }
       }
     }

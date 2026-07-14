@@ -216,21 +216,18 @@ const ShopContextProvider = (props) => {
     return total;
   };
 
-  // BUY 4 GET 5TH FREE (Applicable ONLY on Tank Tops and Oversized T-Shirts)
+  // BUY 4 GET 5TH FREE (Applicable on all products/categories)
   const getB4G1Discount = () => {
     let eligibleItems = [];
     for (const id in cartItems) {
       const product = products.find(p => p._id === id);
       if (!product) continue;
 
-      // Tank Tops or Oversized T-Shirts only
-      if (product.subCategory === "Tank Tops" || product.subCategory === "Oversized T-Shirts") {
-        for (const s in cartItems[id]) {
-          const item = cartItems[id][s];
-          const qty = typeof item === "number" ? item : item.quantity;
-          for (let i = 0; i < qty; i++) {
-            eligibleItems.push(product.price);
-          }
+      for (const s in cartItems[id]) {
+        const item = cartItems[id][s];
+        const qty = typeof item === "number" ? item : item.quantity;
+        for (let i = 0; i < qty; i++) {
+          eligibleItems.push(product.price);
         }
       }
     }
