@@ -10,40 +10,47 @@ const LatestCollection = () => {
   const scrollRef = useRef(null)
 
   useEffect(() => {
-    setLatestProducts(products.slice(0, 5))
+    setLatestProducts(products.slice(0, 10))
   }, [products])
 
-
-
   return (
-    <div className="w-full py-20 px-4 sm:px-10 lg:px-16">
+    <div className="w-full py-20">
 
       {/* Section Heading */}
-      <div className="text-center mb-14">
+      <div className="text-center mb-14 px-4">
         <Title text1="OUR" text2="PRODUCTS" />
       </div>
 
-      <div
-        ref={scrollRef}
-        className="
-          flex gap-4 px-4 overflow-x-auto no-scrollbar snap-x snap-mandatory
-          sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5
-          sm:overflow-visible sm:gap-6 sm:px-0
-          max-w-[1600px] mx-auto
-        "
-      >
-        {latestProducts.map((item, index) => (
-          <div key={index} className="snap-start w-[72vw] sm:w-auto flex-shrink-0 sm:flex-shrink">
-            <ProductItem
-              id={item._id}
-              image={item.image}
-              name={item.name}
-              price={item.price}
-              badge={item.badge}
-              subCategory={item.subCategory}
-            />
-          </div>
-        ))}
+      {/* Infinite Scroll Carousel */}
+      <div className="w-full overflow-x-hidden relative py-4">
+        <div className="infinite-scroll flex gap-8">
+          {/* First Set */}
+          {latestProducts.map((item, index) => (
+            <div key={`latest-first-${item._id}-${index}`} className="w-[280px] flex-shrink-0">
+              <ProductItem
+                id={item._id}
+                image={item.image}
+                name={item.name}
+                price={item.price}
+                badge={item.badge}
+                subCategory={item.subCategory}
+              />
+            </div>
+          ))}
+          {/* Duplicate Set for Loop */}
+          {latestProducts.map((item, index) => (
+            <div key={`latest-second-${item._id}-${index}`} className="w-[280px] flex-shrink-0">
+              <ProductItem
+                id={item._id}
+                image={item.image}
+                name={item.name}
+                price={item.price}
+                badge={item.badge}
+                subCategory={item.subCategory}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* VIEW ALL BUTTON */}
